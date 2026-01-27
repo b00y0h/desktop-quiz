@@ -230,4 +230,18 @@ export const store = {
     const all = await loadAllQuizzes()
     return all.find(q => q.submissionToken === token) || null
   },
+
+  async addSubmission(quizId: string, name: string, imageUrl: string): Promise<Submission | null> {
+    const quiz = await loadQuiz(quizId)
+    if (!quiz) return null
+    const submission: Submission = {
+      id: genId(),
+      name,
+      imageUrl,
+      createdAt: new Date().toISOString(),
+    }
+    quiz.submissions.push(submission)
+    await saveQuiz(quiz)
+    return submission
+  },
 }
