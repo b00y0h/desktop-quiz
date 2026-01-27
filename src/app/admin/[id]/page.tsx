@@ -323,9 +323,20 @@ export default function AdminQuiz() {
                 {typeof window !== 'undefined' ? window.location.origin : ''}/submit/{quiz.submissionToken}
               </code>
               {quiz.status === 'collecting' && quiz.submissionCount !== undefined && (
-                <p className="text-surface-400 text-sm mt-2">
-                  Submissions received: {quiz.submissionCount}
-                </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <p className="text-surface-400 text-sm">
+                    Submissions received: {quiz.submissionCount}
+                  </p>
+                  <button
+                    onClick={async () => {
+                      const updated = await loadQuiz(pin)
+                      if (updated) setQuiz(updated)
+                    }}
+                    className="px-3 py-1 bg-surface-800 hover:bg-surface-700 border border-surface-700 rounded text-xs transition"
+                  >
+                    Refresh
+                  </button>
+                </div>
               )}
             </div>
             <button
