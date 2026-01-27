@@ -7,6 +7,7 @@ interface TokenInfo {
   quizId: string
   quizTitle: string
   submissionCount: number
+  names: string[]
 }
 
 interface SubmissionResult {
@@ -27,6 +28,7 @@ export default function SubmitPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [duplicateWarning, setDuplicateWarning] = useState(false)
 
   const [submitted, setSubmitted] = useState(false)
   const [submittedName, setSubmittedName] = useState('')
@@ -54,6 +56,26 @@ export default function SubmitPage() {
     }
     validateToken()
   }, [token])
+
+  const checkDuplicateName = (inputName: string) => {
+    if (!inputName.trim() || !tokenInfo?.names) {
+      setDuplicateWarning(false)
+      return
+    }
+    const normalizedInput = inputName.trim().toLowerCase()
+    const isDuplicate = tokenInfo.names.some(n => n.trim().toLowerCase() === normalizedInput)
+    setDuplicateWarning(isDuplicate)
+  }
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value
+    setName(newName)
+    checkDuplicateName(newName)
+  }
+
+  const handleNameBlur = () => {
+    checkDuplicateName(name)
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -95,6 +117,9 @@ export default function SubmitPage() {
         setSubmittedName(data.submission.name)
         setSubmittedImageUrl(previewUrl || '')
         setSubmitted(true)
+      } else if (res.status === 409) {
+        setUploadError('Name already taken')
+        setDuplicateWarning(true)
       } else {
         const data = await res.json()
         setUploadError(data.error || 'Submission failed')
@@ -169,11 +194,17 @@ export default function SubmitPage() {
               id="name"
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={handleNameChange}
+              onBlur={handleNameBlur}
               required
               className="w-full px-4 py-3 bg-surface rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="Enter your name"
             />
+            {duplicateWarning && (
+              <p className="text-yellow-400 text-sm mt-2">
+                This name is already taken. Please use a different name.
+              </p>
+            )}
           </div>
 
           <div>
@@ -209,7 +240,7 @@ export default function SubmitPage() {
 
           <button
             type="submit"
-            disabled={uploading}
+            disabled={uploading || duplicateWarning}
             className="w-full py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {uploading ? 'Uploading...' : 'Submit'}
