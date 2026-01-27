@@ -1,5 +1,7 @@
-// In-memory store — data resets on serverless cold start
-// For production, swap to a real database
+// Persistent store using Vercel Blob for data + images
+// Each quiz is stored as a JSON blob, keyed by quiz ID
+
+import { put, list, del } from '@vercel/blob'
 
 export interface Quiz {
   id: string
@@ -15,9 +17,8 @@ export interface Quiz {
 
 export interface Question {
   id: string
-  imageData: string // base64 data URL or blob URL
-  imageUrl?: string // Vercel Blob URL (preferred)
-  answer: string    // correct person's name
+  imageUrl: string
+  answer: string
   order: number
 }
 
@@ -49,17 +50,49 @@ function genCode(): string {
   return code
 }
 
-// Global store survives across API calls in the same serverless instance
-const globalStore = globalThis as unknown as { __quizStore?: Map<string, Quiz> }
-if (!globalStore.__quizStore) {
-  globalStore.__quizStore = new Map<string, Quiz>()
+const QUIZ_PREFIX = 'quiz-data/'
+
+async function saveQuiz(quiz: Quiz): Promise<void> {
+  await put(`${QUIZ_PREFIX}${quiz.id}.json`, JSON.stringify(quiz), {
+    access: 'public',
+    contentType: 'application/json',
+    addRandomSuffix: false,
+  })
 }
-const quizzes = globalStore.__quizStore
+
+async function loadQuiz(id: string): Promise<Quiz | null> {
+  try {
+    const { blobs } = await list({ prefix: `${QUIZ_PREFIX}${id}.json` })
+    if (blobs.length === 0) return null
+    const res = await fetch(blobs[0].url)
+    if (!res.ok) return null
+    return await res.json() as Quiz
+  } catch {
+    return null
+  }
+}
+
+async function loadAllQuizzes(): Promise<Quiz[]> {
+  try {
+    const { blobs } = await list({ prefix: QUIZ_PREFIX })
+    const quizzes: Quiz[] = []
+    for (const blob of blobs) {
+      try {
+        const res = await fetch(blob.url)
+        if (res.ok) quizzes.push(await res.json() as Quiz)
+      } catch { /* skip broken entries */ }
+    }
+    return quizzes
+  } catch {
+    return []
+  }
+}
 
 export const store = {
-  createQuiz(title: string, description: string | undefined, adminPin: string): Quiz {
+  async createQuiz(title: string, description: string | undefined, adminPin: string): Promise<Quiz> {
+    const allQuizzes = await loadAllQuizzes()
     let code = genCode()
-    while (Array.from(quizzes.values()).some(q => q.code === code)) code = genCode()
+    while (allQuizzes.some(q => q.code === code)) code = genCode()
     const quiz: Quiz = {
       id: genId(),
       title,
@@ -71,66 +104,60 @@ export const store = {
       questions: [],
       participants: [],
     }
-    quizzes.set(quiz.id, quiz)
+    await saveQuiz(quiz)
     return quiz
   },
 
-  getQuiz(id: string): Quiz | undefined {
-    return quizzes.get(id)
+  async getQuiz(id: string): Promise<Quiz | null> {
+    return loadQuiz(id)
   },
 
-  getQuizByCode(code: string): Quiz | undefined {
-    return Array.from(quizzes.values()).find(q => q.code === code.toUpperCase())
+  async getQuizByCode(code: string): Promise<Quiz | null> {
+    const all = await loadAllQuizzes()
+    return all.find(q => q.code === code.toUpperCase()) || null
   },
 
-  updateQuizStatus(id: string, status: Quiz['status']): Quiz | undefined {
-    const q = quizzes.get(id)
-    if (q) q.status = status
-    return q
+  async updateQuizStatus(id: string, status: Quiz['status']): Promise<Quiz | null> {
+    const quiz = await loadQuiz(id)
+    if (!quiz) return null
+    quiz.status = status
+    await saveQuiz(quiz)
+    return quiz
   },
 
-  addQuestion(quizId: string, imageData: string, answer: string, imageUrl?: string): Question | undefined {
-    const q = quizzes.get(quizId)
-    if (!q) return undefined
+  async addQuestion(quizId: string, imageUrl: string, answer: string): Promise<Question | null> {
+    const quiz = await loadQuiz(quizId)
+    if (!quiz) return null
     const question: Question = {
       id: genId(),
-      imageData: imageUrl || imageData,
       imageUrl,
       answer,
-      order: q.questions.length,
+      order: quiz.questions.length,
     }
-    q.questions.push(question)
+    quiz.questions.push(question)
+    await saveQuiz(quiz)
     return question
   },
 
-  removeQuestion(quizId: string, questionId: string): boolean {
-    const q = quizzes.get(quizId)
-    if (!q) return false
-    const idx = q.questions.findIndex(x => x.id === questionId)
+  async removeQuestion(quizId: string, questionId: string): Promise<boolean> {
+    const quiz = await loadQuiz(quizId)
+    if (!quiz) return false
+    const idx = quiz.questions.findIndex(x => x.id === questionId)
     if (idx === -1) return false
-    q.questions.splice(idx, 1)
-    q.questions.forEach((x, i) => x.order = i)
+    quiz.questions.splice(idx, 1)
+    quiz.questions.forEach((x, i) => x.order = i)
+    await saveQuiz(quiz)
     return true
   },
 
-  updateQuestion(quizId: string, questionId: string, answer: string): boolean {
-    const q = quizzes.get(quizId)
-    if (!q) return false
-    const question = q.questions.find(x => x.id === questionId)
-    if (!question) return false
-    question.answer = answer
-    return true
-  },
+  async submitAnswers(quizId: string, name: string, guesses: Record<string, string>, timeTaken: number): Promise<Participant | null> {
+    const quiz = await loadQuiz(quizId)
+    if (!quiz) return null
+    if (quiz.participants.some(p => p.name.toLowerCase() === name.toLowerCase())) return null
 
-  submitAnswers(quizId: string, name: string, guesses: Record<string, string>, timeTaken: number): Participant | undefined {
-    const q = quizzes.get(quizId)
-    if (!q) return undefined
-    // Check if already submitted
-    if (q.participants.some(p => p.name.toLowerCase() === name.toLowerCase())) return undefined
-    
     const answers: Answer[] = []
     let score = 0
-    for (const question of q.questions) {
+    for (const question of quiz.questions) {
       const guess = guesses[question.id] || ''
       const correct = guess.toLowerCase().trim() === question.answer.toLowerCase().trim()
       if (correct) score++
@@ -140,24 +167,25 @@ export const store = {
       id: genId(),
       name,
       score,
-      total: q.questions.length,
+      total: quiz.questions.length,
       timeTaken,
       createdAt: new Date().toISOString(),
       answers,
     }
-    q.participants.push(participant)
+    quiz.participants.push(participant)
+    await saveQuiz(quiz)
     return participant
   },
 
-  getParticipant(quizId: string, participantId: string): Participant | undefined {
-    const q = quizzes.get(quizId)
-    return q?.participants.find(p => p.id === participantId)
+  async getParticipant(quizId: string, participantId: string): Promise<Participant | null> {
+    const quiz = await loadQuiz(quizId)
+    return quiz?.participants.find(p => p.id === participantId) || null
   },
 
-  getLeaderboard(quizId: string): Participant[] {
-    const q = quizzes.get(quizId)
-    if (!q) return []
-    return [...q.participants].sort((a, b) => {
+  async getLeaderboard(quizId: string): Promise<Participant[]> {
+    const quiz = await loadQuiz(quizId)
+    if (!quiz) return []
+    return [...quiz.participants].sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score
       return (a.timeTaken || 9999) - (b.timeTaken || 9999)
     })

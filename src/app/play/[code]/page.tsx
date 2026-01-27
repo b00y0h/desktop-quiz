@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 
-interface Question { id: string; imageData: string; order: number }
+interface Question { id: string; imageUrl: string; order: number }
 interface QuizInfo { id: string; title: string; status: string; questions: Question[]; names: string[] }
 
 type Phase = 'name' | 'playing' | 'submitting' | 'results'
@@ -140,7 +140,7 @@ export default function PlayQuiz() {
         {/* Image */}
         <div className="flex-1 flex flex-col animate-fade-in" key={q.id}>
           <div className="relative rounded-xl overflow-hidden border border-surface-700 mb-4 bg-surface-900">
-            <img src={q.imageData} alt={`Desktop ${currentQ + 1}`} className="w-full h-auto max-h-[50vh] object-contain" />
+            <img src={q.imageUrl} alt={`Desktop ${currentQ + 1}`} className="w-full h-auto max-h-[50vh] object-contain" />
           </div>
 
           {/* Name options */}

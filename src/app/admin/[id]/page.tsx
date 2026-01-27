@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
-interface Question { id: string; imageData: string; answer: string; order: number }
+interface Question { id: string; imageUrl: string; answer: string; order: number }
 interface QuizData { id: string; title: string; code: string; status: string; questions: Question[]; questionCount: number }
 
 export default function AdminQuiz() {
@@ -230,7 +230,7 @@ export default function AdminQuiz() {
           {quiz.questions.sort((a, b) => a.order - b.order).map((q, i) => (
             <div key={q.id} className="flex items-center gap-4 p-4 bg-surface-900 rounded-xl border border-surface-700">
               <span className="text-2xl font-bold text-surface-700 w-8">#{i + 1}</span>
-              <img src={q.imageData} alt="" className="w-24 h-16 object-cover rounded-lg" />
+              <img src={q.imageUrl} alt="" className="w-24 h-16 object-cover rounded-lg" />
               <div className="flex-1">
                 <p className="font-medium">Answer: <span className="text-primary-400">{q.answer}</span></p>
               </div>
