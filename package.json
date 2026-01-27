@@ -11,6 +11,7 @@
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.18",
     "@types/canvas-confetti": "^1.6.4",
+    "@vercel/blob": "^2.0.1",
     "canvas-confetti": "^1.9.3",
     "next": "14",
     "react": "^19.2.4",

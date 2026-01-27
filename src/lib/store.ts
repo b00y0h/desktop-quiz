@@ -15,7 +15,8 @@ export interface Quiz {
 
 export interface Question {
   id: string
-  imageData: string // base64 data URL
+  imageData: string // base64 data URL or blob URL
+  imageUrl?: string // Vercel Blob URL (preferred)
   answer: string    // correct person's name
   order: number
 }
@@ -88,12 +89,13 @@ export const store = {
     return q
   },
 
-  addQuestion(quizId: string, imageData: string, answer: string): Question | undefined {
+  addQuestion(quizId: string, imageData: string, answer: string, imageUrl?: string): Question | undefined {
     const q = quizzes.get(quizId)
     if (!q) return undefined
     const question: Question = {
       id: genId(),
-      imageData,
+      imageData: imageUrl || imageData,
+      imageUrl,
       answer,
       order: q.questions.length,
     }

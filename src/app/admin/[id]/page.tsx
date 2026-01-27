@@ -52,25 +52,22 @@ export default function AdminQuiz() {
     setUploading(true)
     setError('')
     
-    // Compress and convert to base64
-    const canvas = document.createElement('canvas')
-    const img = new Image()
-    img.src = URL.createObjectURL(file)
-    await new Promise(resolve => { img.onload = resolve })
-    
-    const maxW = 800
-    const scale = Math.min(1, maxW / img.width)
-    canvas.width = img.width * scale
-    canvas.height = img.height * scale
-    const ctx = canvas.getContext('2d')!
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-    const imageData = canvas.toDataURL('image/jpeg', 0.5)
-    
     try {
+      // Upload image to Vercel Blob
+      const formData = new FormData()
+      formData.append('file', file)
+      const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData })
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json().catch(() => ({ error: 'Upload failed' }))
+        throw new Error(err.error || 'Upload failed')
+      }
+      const { url: imageUrl } = await uploadRes.json()
+      
+      // Add question with blob URL
       const res = await fetch(`/api/quiz/${id}/questions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageData, answer: newAnswer.trim(), pin }),
+        body: JSON.stringify({ imageUrl, answer: newAnswer.trim(), pin }),
       })
       if (!res.ok) {
         const errData = await res.json().catch(() => ({ error: res.statusText }))
