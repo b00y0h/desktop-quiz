@@ -159,7 +159,9 @@ export const store = {
   async submitAnswers(quizId: string, name: string, guesses: Record<string, string>, timeTaken: number): Promise<Participant | null> {
     const quiz = await loadQuiz(quizId)
     if (!quiz) return null
-    if (quiz.participants.some(p => p.name.toLowerCase() === name.toLowerCase())) return null
+
+    // If name already used, replace their previous submission (allow retakes)
+    const existingIdx = quiz.participants.findIndex(p => p.name.toLowerCase() === name.toLowerCase())
 
     const answers: Answer[] = []
     let score = 0
@@ -170,7 +172,7 @@ export const store = {
       answers.push({ id: genId(), questionId: question.id, guess, correct })
     }
     const participant: Participant = {
-      id: genId(),
+      id: existingIdx >= 0 ? quiz.participants[existingIdx].id : genId(),
       name,
       score,
       total: quiz.questions.length,
@@ -178,7 +180,12 @@ export const store = {
       createdAt: new Date().toISOString(),
       answers,
     }
-    quiz.participants.push(participant)
+
+    if (existingIdx >= 0) {
+      quiz.participants[existingIdx] = participant
+    } else {
+      quiz.participants.push(participant)
+    }
     await saveQuiz(quiz)
     return participant
   },
