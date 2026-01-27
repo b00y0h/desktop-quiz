@@ -39,17 +39,17 @@
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| SUB-01 | — | Pending |
-| SUB-02 | — | Pending |
-| SUB-03 | — | Pending |
-| SUB-04 | — | Pending |
-| WORK-01 | — | Pending |
-| WORK-02 | — | Pending |
-| WORK-03 | — | Pending |
-| STATE-01 | — | Pending |
-| STATE-02 | — | Pending |
-| STATE-03 | — | Pending |
-| STATE-04 | — | Pending |
-| GEN-01 | — | Pending |
-| GEN-02 | — | Pending |
-| GEN-03 | — | Pending |
+| SUB-01 | 1 | Pending |
+| SUB-02 | 1 | Pending |
+| SUB-03 | 2 | Pending |
+| SUB-04 | 2 | Pending |
+| WORK-01 | 1 | Pending |
+| WORK-02 | 1 | Pending |
+| WORK-03 | 1 | Pending |
+| STATE-01 | 3 | Pending |
+| STATE-02 | 3 | Pending |
+| STATE-03 | 3 | Pending |
+| STATE-04 | 3 | Pending |
+| GEN-01 | 4 | Pending |
+| GEN-02 | 4 | Pending |
+| GEN-03 | 4 | Pending |
