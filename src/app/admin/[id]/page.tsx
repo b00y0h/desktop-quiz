@@ -58,13 +58,13 @@ export default function AdminQuiz() {
     img.src = URL.createObjectURL(file)
     await new Promise(resolve => { img.onload = resolve })
     
-    const maxW = 1200
+    const maxW = 800
     const scale = Math.min(1, maxW / img.width)
     canvas.width = img.width * scale
     canvas.height = img.height * scale
     const ctx = canvas.getContext('2d')!
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-    const imageData = canvas.toDataURL('image/jpeg', 0.7)
+    const imageData = canvas.toDataURL('image/jpeg', 0.5)
     
     try {
       const res = await fetch(`/api/quiz/${id}/questions`, {
@@ -72,7 +72,10 @@ export default function AdminQuiz() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageData, answer: newAnswer.trim(), pin }),
       })
-      if (!res.ok) throw new Error('Failed to add')
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({ error: res.statusText }))
+        throw new Error(errData.error || `HTTP ${res.status}`)
+      }
       setNewAnswer('')
       const updated = await loadQuiz(pin)
       if (updated) setQuiz(updated)
