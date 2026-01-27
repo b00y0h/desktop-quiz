@@ -102,10 +102,28 @@ export default function AdminQuiz() {
       const questionData = await addRes.json()
       console.log('Question added:', questionData)
 
-      // Step 3: Reload quiz to get updated data
+      // Step 3: Optimistically update UI immediately
       setNewAnswer('')
-      const updated = await loadQuiz(pin)
-      if (updated) setQuiz(updated)
+      setQuiz(prev => {
+        if (!prev) return prev
+        const newQuestion = {
+          id: questionData.id,
+          imageUrl: questionData.imageUrl || imageUrl,
+          answer: questionData.answer || newAnswer.trim(),
+          order: questionData.order ?? prev.questions.length,
+        }
+        return {
+          ...prev,
+          questions: [...prev.questions, newQuestion],
+          questionCount: prev.questions.length + 1,
+        }
+      })
+
+      // Also reload from server after a delay to ensure consistency
+      setTimeout(async () => {
+        const updated = await loadQuiz(pin)
+        if (updated) setQuiz(updated)
+      }, 2000)
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
       console.error('Upload/add error:', message)
@@ -118,16 +136,29 @@ export default function AdminQuiz() {
   }
 
   async function removeQuestion(questionId: string) {
+    // Optimistically remove from UI
+    setQuiz(prev => {
+      if (!prev) return prev
+      const filtered = prev.questions.filter(q => q.id !== questionId)
+      filtered.forEach((q, i) => q.order = i)
+      return { ...prev, questions: filtered, questionCount: filtered.length }
+    })
     try {
       await fetch(`/api/quiz/${id}/questions`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ questionId, pin }),
       })
-      const updated = await loadQuiz(pin)
-      if (updated) setQuiz(updated)
+      // Reload after delay for consistency
+      setTimeout(async () => {
+        const updated = await loadQuiz(pin)
+        if (updated) setQuiz(updated)
+      }, 2000)
     } catch (err) {
       setError(`Remove failed: ${err instanceof Error ? err.message : String(err)}`)
+      // Revert on error
+      const updated = await loadQuiz(pin)
+      if (updated) setQuiz(updated)
     }
   }
 

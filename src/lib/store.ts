@@ -65,7 +65,10 @@ async function loadQuiz(id: string): Promise<Quiz | null> {
   try {
     const { blobs } = await list({ prefix: `${QUIZ_PREFIX}${id}.json` })
     if (blobs.length === 0) return null
-    const res = await fetch(blobs[0].url)
+    // Add cache buster to avoid stale reads
+    const url = new URL(blobs[0].url)
+    url.searchParams.set('_t', Date.now().toString())
+    const res = await fetch(url.toString(), { cache: 'no-store' })
     if (!res.ok) return null
     return await res.json() as Quiz
   } catch {
@@ -79,7 +82,9 @@ async function loadAllQuizzes(): Promise<Quiz[]> {
     const quizzes: Quiz[] = []
     for (const blob of blobs) {
       try {
-        const res = await fetch(blob.url)
+        const url = new URL(blob.url)
+        url.searchParams.set('_t', Date.now().toString())
+        const res = await fetch(url.toString(), { cache: 'no-store' })
         if (res.ok) quizzes.push(await res.json() as Quiz)
       } catch { /* skip broken entries */ }
     }
