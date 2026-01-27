@@ -24,6 +24,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         order: q.order,
       })),
       names: quiz.questions.map(q => q.answer),
+      submissionToken: isAdmin ? quiz.submissionToken : undefined,
+      submissionCount: isAdmin ? quiz.submissions.length : undefined,
     })
   } catch (err) {
     console.error('Get quiz error:', err)
@@ -34,10 +36,17 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
-    const { status, pin } = await req.json()
+    const { status, pin, action } = await req.json()
     const quiz = await store.getQuiz(id)
     if (!quiz) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     if (pin !== quiz.adminPin) return NextResponse.json({ error: 'Invalid PIN' }, { status: 403 })
+
+    if (action === 'generateSubmissionToken') {
+      const token = await store.generateSubmissionToken(id, pin)
+      if (!token) return NextResponse.json({ error: 'Failed to generate token' }, { status: 500 })
+      return NextResponse.json({ token, submissionUrl: `/submit/${token}` })
+    }
+
     if (status) await store.updateQuizStatus(id, status)
     return NextResponse.json({ success: true })
   } catch (err) {
