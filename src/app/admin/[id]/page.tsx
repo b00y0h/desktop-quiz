@@ -19,9 +19,14 @@ export default function AdminQuiz() {
   const [copied, setCopied] = useState(false)
 
   const loadQuiz = useCallback(async (adminPin: string) => {
-    const res = await fetch(`/api/quiz/${id}?pin=${adminPin}`)
-    if (!res.ok) return null
-    return await res.json() as QuizData
+    try {
+      const res = await fetch(`/api/quiz/${id}?pin=${adminPin}`)
+      if (!res.ok) return null
+      return await res.json() as QuizData
+    } catch (err) {
+      console.error('Failed to load quiz:', err)
+      return null
+    }
   }, [id])
 
   useEffect(() => {
@@ -48,58 +53,97 @@ export default function AdminQuiz() {
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
-    if (!file || !newAnswer.trim()) { setError('Enter a name before uploading'); return }
+    if (!file) { setError('No file selected'); return }
+    if (!newAnswer.trim()) { setError('Enter a name before uploading'); return }
+
     setUploading(true)
     setError('')
-    
+
     try {
-      // Upload image to Vercel Blob
+      // Step 1: Upload image to Vercel Blob
+      console.log('Uploading image...')
       const formData = new FormData()
       formData.append('file', file)
       const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData })
-      if (!uploadRes.ok) {
-        const err = await uploadRes.json().catch(() => ({ error: 'Upload failed' }))
-        throw new Error(err.error || 'Upload failed')
-      }
-      const { url: imageUrl } = await uploadRes.json()
       
-      // Add question with blob URL
-      const res = await fetch(`/api/quiz/${id}/questions`, {
+      if (!uploadRes.ok) {
+        const errBody = await uploadRes.text()
+        console.error('Upload failed:', uploadRes.status, errBody)
+        setError(`Upload failed: ${uploadRes.status} - ${errBody}`)
+        setUploading(false)
+        return
+      }
+
+      const uploadData = await uploadRes.json()
+      const imageUrl = uploadData.url
+      if (!imageUrl) {
+        setError('Upload succeeded but no URL returned')
+        setUploading(false)
+        return
+      }
+      console.log('Image uploaded:', imageUrl)
+
+      // Step 2: Add question to quiz
+      console.log('Adding question...')
+      const addRes = await fetch(`/api/quiz/${id}/questions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageUrl, answer: newAnswer.trim(), pin }),
       })
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({ error: res.statusText }))
-        throw new Error(errData.error || `HTTP ${res.status}`)
+
+      if (!addRes.ok) {
+        const errBody = await addRes.text()
+        console.error('Add question failed:', addRes.status, errBody)
+        setError(`Add question failed: ${addRes.status} - ${errBody}`)
+        setUploading(false)
+        return
       }
+
+      const questionData = await addRes.json()
+      console.log('Question added:', questionData)
+
+      // Step 3: Reload quiz to get updated data
       setNewAnswer('')
       const updated = await loadQuiz(pin)
       if (updated) setQuiz(updated)
-    } catch { setError('Failed to add question') }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      console.error('Upload/add error:', message)
+      setError(`Error: ${message}`)
+    }
+
     setUploading(false)
-    e.target.value = ''
+    // Reset file input
+    if (e.target) e.target.value = ''
   }
 
   async function removeQuestion(questionId: string) {
-    await fetch(`/api/quiz/${id}/questions`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ questionId, pin }),
-    })
-    const updated = await loadQuiz(pin)
-    if (updated) setQuiz(updated)
+    try {
+      await fetch(`/api/quiz/${id}/questions`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questionId, pin }),
+      })
+      const updated = await loadQuiz(pin)
+      if (updated) setQuiz(updated)
+    } catch (err) {
+      setError(`Remove failed: ${err instanceof Error ? err.message : String(err)}`)
+    }
   }
 
   async function toggleStatus() {
-    const newStatus = quiz?.status === 'active' ? 'closed' : 'active'
-    await fetch(`/api/quiz/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus, pin }),
-    })
-    const updated = await loadQuiz(pin)
-    if (updated) setQuiz(updated)
+    try {
+      const newStatus = quiz?.status === 'active' ? 'closed' : 'active'
+      await fetch(`/api/quiz/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus, pin }),
+      })
+      const updated = await loadQuiz(pin)
+      if (updated) setQuiz(updated)
+    } catch (err) {
+      setError(`Status change failed: ${err instanceof Error ? err.message : String(err)}`)
+    }
   }
 
   function copyLink() {
@@ -203,9 +247,9 @@ export default function AdminQuiz() {
             className="flex-1 px-4 py-3 bg-surface-800 border border-surface-700 rounded-xl focus:border-primary-500 focus:outline-none"
           />
           <label className={`px-6 py-3 rounded-xl font-semibold cursor-pointer text-center transition ${
-            newAnswer.trim() ? 'bg-primary-600 hover:bg-primary-500' : 'bg-surface-700 opacity-50 cursor-not-allowed'
+            newAnswer.trim() && !uploading ? 'bg-primary-600 hover:bg-primary-500' : 'bg-surface-700 opacity-50 cursor-not-allowed'
           }`}>
-            {uploading ? 'Uploading...' : '📷 Upload Image'}
+            {uploading ? '⏳ Uploading...' : '📷 Upload Image'}
             <input
               type="file"
               accept="image/*"
