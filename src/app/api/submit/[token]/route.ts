@@ -22,6 +22,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
       quizId: quiz.id,
       quizTitle: quiz.title,
       submissionCount: quiz.submissions.length,
+      names: quiz.submissions.map(s => s.name),
     })
   } catch (err) {
     console.error('Get submission token error:', err)
@@ -56,6 +57,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
 
     if (!file.type.startsWith('image/')) {
       return NextResponse.json({ error: 'File must be an image' }, { status: 400 })
+    }
+
+    const hasDuplicate = await store.hasSubmissionName(quiz.id, name.trim())
+    if (hasDuplicate) {
+      return NextResponse.json({ error: 'Name already taken' }, { status: 409 })
     }
 
     const blob = await put(`quiz-images/${Date.now()}-${file.name}`, file, {

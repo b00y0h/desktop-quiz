@@ -244,4 +244,11 @@ export const store = {
     await saveQuiz(quiz)
     return submission
   },
+
+  async hasSubmissionName(quizId: string, name: string): Promise<boolean> {
+    const quiz = await loadQuiz(quizId)
+    if (!quiz) return false
+    const normalizedName = name.trim().toLowerCase()
+    return quiz.submissions.some(s => s.name.trim().toLowerCase() === normalizedName)
+  },
 }
