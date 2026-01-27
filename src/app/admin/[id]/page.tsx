@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
 interface Question { id: string; imageUrl: string; answer: string; order: number }
-interface QuizData { id: string; title: string; code: string; status: string; questions: Question[]; questionCount: number }
+interface QuizData { id: string; title: string; code: string; status: string; questions: Question[]; questionCount: number; submissionToken?: string; submissionCount?: number }
 
 export default function AdminQuiz() {
   const params = useParams()
@@ -17,6 +17,7 @@ export default function AdminQuiz() {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
+  const [submissionCopied, setSubmissionCopied] = useState(false)
 
   const loadQuiz = useCallback(async (adminPin: string) => {
     try {
@@ -184,6 +185,31 @@ export default function AdminQuiz() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  async function startCollectingSubmissions() {
+    try {
+      const res = await fetch(`/api/quiz/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'generateSubmissionToken', pin }),
+      })
+      if (!res.ok) {
+        setError('Failed to generate submission link')
+        return
+      }
+      const data = await res.json()
+      setQuiz(prev => prev ? { ...prev, submissionToken: data.token, status: 'collecting', submissionCount: 0 } : prev)
+    } catch (err) {
+      setError(`Failed to generate link: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
+  function copySubmissionLink() {
+    const url = `${window.location.origin}/submit/${quiz?.submissionToken}`
+    navigator.clipboard.writeText(url)
+    setSubmissionCopied(true)
+    setTimeout(() => setSubmissionCopied(false), 2000)
+  }
+
   if (!authenticated) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6">
@@ -200,7 +226,7 @@ export default function AdminQuiz() {
             />
             {error && <p className="text-red-400 text-sm text-center">{error}</p>}
             <button type="submit" className="w-full py-3 bg-primary-600 hover:bg-primary-500 rounded-xl font-semibold transition">
-              Unlock →
+              Unlock
             </button>
           </form>
         </div>
@@ -212,6 +238,7 @@ export default function AdminQuiz() {
 
   const statusColors: Record<string, string> = {
     draft: 'bg-yellow-500/20 text-yellow-400',
+    collecting: 'bg-blue-500/20 text-blue-400',
     active: 'bg-green-500/20 text-green-400',
     closed: 'bg-red-500/20 text-red-400',
   }
@@ -231,10 +258,10 @@ export default function AdminQuiz() {
         </div>
         <div className="flex gap-2">
           <button onClick={copyLink} className="px-4 py-2 bg-surface-800 hover:bg-surface-700 border border-surface-700 rounded-lg text-sm transition">
-            {copied ? '✅ Copied!' : '🔗 Copy Link'}
+            {copied ? 'Copied!' : 'Copy Link'}
           </button>
           <Link href={`/admin/${id}/results`} className="px-4 py-2 bg-surface-800 hover:bg-surface-700 border border-surface-700 rounded-lg text-sm transition">
-            📊 Results
+            Results
           </Link>
         </div>
       </div>
@@ -244,9 +271,10 @@ export default function AdminQuiz() {
         <div className="flex items-center justify-between">
           <div>
             <p className="font-medium">
-              {quiz.status === 'draft' && '📝 Draft — Add questions then publish'}
-              {quiz.status === 'active' && '🟢 Live — Participants can join'}
-              {quiz.status === 'closed' && '🔴 Closed — No more submissions'}
+              {quiz.status === 'draft' && 'Draft - Add questions then publish'}
+              {quiz.status === 'collecting' && 'Collecting Submissions - Share the link below'}
+              {quiz.status === 'active' && 'Live - Participants can join'}
+              {quiz.status === 'closed' && 'Closed - No more submissions'}
             </p>
             <p className="text-surface-400 text-sm mt-1">
               Share link: {typeof window !== 'undefined' ? window.location.origin : ''}/play/{quiz.code}
@@ -266,9 +294,53 @@ export default function AdminQuiz() {
         </div>
       </div>
 
+      {/* Submission link section */}
+      {quiz.status === 'draft' && (
+        <div className="mb-8 p-4 bg-surface-900 rounded-xl border border-surface-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Start Collecting Desktop Submissions</p>
+              <p className="text-surface-400 text-sm mt-1">
+                Generate a unique link for people to submit their desktop screenshots
+              </p>
+            </div>
+            <button
+              onClick={startCollectingSubmissions}
+              className="px-5 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-semibold transition"
+            >
+              Start Collecting Submissions
+            </button>
+          </div>
+        </div>
+      )}
+
+      {quiz.submissionToken && (
+        <div className="mb-8 p-4 bg-blue-500/10 rounded-xl border border-blue-500/30">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 mr-4">
+              <p className="font-medium text-blue-400 mb-2">Submission Link</p>
+              <code className="text-sm bg-surface-900 px-3 py-2 rounded block break-all">
+                {typeof window !== 'undefined' ? window.location.origin : ''}/submit/{quiz.submissionToken}
+              </code>
+              {quiz.status === 'collecting' && quiz.submissionCount !== undefined && (
+                <p className="text-surface-400 text-sm mt-2">
+                  Submissions received: {quiz.submissionCount}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={copySubmissionLink}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-semibold transition whitespace-nowrap"
+            >
+              {submissionCopied ? 'Copied!' : 'Copy Link'}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Add question */}
       <div className="mb-8 p-5 bg-surface-900 rounded-xl border border-surface-700 border-dashed">
-        <h2 className="text-lg font-semibold mb-4">➕ Add Desktop Screenshot</h2>
+        <h2 className="text-lg font-semibold mb-4">Add Desktop Screenshot</h2>
         <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
@@ -280,7 +352,7 @@ export default function AdminQuiz() {
           <label className={`px-6 py-3 rounded-xl font-semibold cursor-pointer text-center transition ${
             newAnswer.trim() && !uploading ? 'bg-primary-600 hover:bg-primary-500' : 'bg-surface-700 opacity-50 cursor-not-allowed'
           }`}>
-            {uploading ? '⏳ Uploading...' : '📷 Upload Image'}
+            {uploading ? 'Uploading...' : 'Upload Image'}
             <input
               type="file"
               accept="image/*"
@@ -297,7 +369,6 @@ export default function AdminQuiz() {
       <h2 className="text-lg font-semibold mb-4">Questions ({quiz.questions.length})</h2>
       {quiz.questions.length === 0 ? (
         <div className="text-center py-16 text-surface-400">
-          <div className="text-5xl mb-4">📸</div>
           <p>No questions yet. Upload desktop screenshots above!</p>
         </div>
       ) : (
@@ -313,7 +384,7 @@ export default function AdminQuiz() {
                 onClick={() => removeQuestion(q.id)}
                 className="px-3 py-2 text-red-400 hover:bg-red-500/10 rounded-lg transition text-sm"
               >
-                🗑️ Remove
+                Remove
               </button>
             </div>
           ))}
