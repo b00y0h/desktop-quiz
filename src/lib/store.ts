@@ -8,11 +8,13 @@ export interface Quiz {
   title: string
   description?: string
   code: string
-  status: 'draft' | 'active' | 'closed'
+  status: 'draft' | 'collecting' | 'active' | 'closed'
   adminPin: string
   createdAt: string
   questions: Question[]
   participants: Participant[]
+  submissionToken?: string
+  submissions: Submission[]
 }
 
 export interface Question {
@@ -37,6 +39,13 @@ export interface Answer {
   questionId: string
   guess: string
   correct: boolean
+}
+
+export interface Submission {
+  id: string
+  name: string
+  imageUrl: string
+  createdAt: string
 }
 
 function genId(): string {
@@ -109,6 +118,7 @@ export const store = {
       createdAt: new Date().toISOString(),
       questions: [],
       participants: [],
+      submissions: [],
     }
     await saveQuiz(quiz)
     return quiz
@@ -202,5 +212,22 @@ export const store = {
       if (b.score !== a.score) return b.score - a.score
       return (a.timeTaken || 9999) - (b.timeTaken || 9999)
     })
+  },
+
+  async generateSubmissionToken(quizId: string, adminPin: string): Promise<string | null> {
+    const quiz = await loadQuiz(quizId)
+    if (!quiz) return null
+    if (quiz.adminPin !== adminPin) return null
+    const token = genId()
+    quiz.submissionToken = token
+    quiz.status = 'collecting'
+    if (!quiz.submissions) quiz.submissions = []
+    await saveQuiz(quiz)
+    return token
+  },
+
+  async getQuizBySubmissionToken(token: string): Promise<Quiz | null> {
+    const all = await loadAllQuizzes()
+    return all.find(q => q.submissionToken === token) || null
   },
 }
