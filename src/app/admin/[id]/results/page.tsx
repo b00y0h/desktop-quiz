@@ -1,5 +1,6 @@
 'use client'
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
 interface LeaderboardEntry { id: string; name: string; score: number; total: number; timeTaken?: number }
@@ -9,8 +10,9 @@ interface ResultsData {
   avgScore: number; totalQuestions: number; leaderboard: LeaderboardEntry[]; questionStats: QuestionStat[]
 }
 
-export default function ResultsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function ResultsPage() {
+  const params = useParams()
+  const id = params.id as string
   const [data, setData] = useState<ResultsData | null>(null)
 
   useEffect(() => {

@@ -1,12 +1,14 @@
 'use client'
-import { useState, useEffect, useCallback, use } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
 interface Question { id: string; imageData: string; answer: string; order: number }
 interface QuizData { id: string; title: string; code: string; status: string; questions: Question[]; questionCount: number }
 
-export default function AdminQuiz({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function AdminQuiz() {
+  const params = useParams()
+  const id = params.id as string
   const [quiz, setQuiz] = useState<QuizData | null>(null)
   const [pin, setPin] = useState('')
   const [pinInput, setPinInput] = useState('')

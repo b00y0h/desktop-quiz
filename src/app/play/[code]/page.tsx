@@ -1,13 +1,15 @@
 'use client'
-import { useState, useEffect, useRef, use } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useParams } from 'next/navigation'
 
 interface Question { id: string; imageData: string; order: number }
 interface QuizInfo { id: string; title: string; status: string; questions: Question[]; names: string[] }
 
 type Phase = 'name' | 'playing' | 'submitting' | 'results'
 
-export default function PlayQuiz({ params }: { params: Promise<{ code: string }> }) {
-  const { code } = use(params)
+export default function PlayQuiz() {
+  const params = useParams()
+  const code = params.code as string
   const [quiz, setQuiz] = useState<QuizInfo | null>(null)
   const [phase, setPhase] = useState<Phase>('name')
   const [name, setName] = useState('')
