@@ -3,15 +3,15 @@
 ## v1.1 Requirements
 
 ### Submission Link
-- [ ] **SUB-01**: Admin can generate a unique submission link from the admin dashboard
-- [ ] **SUB-02**: Admin can copy submission link to clipboard with one click
+- [x] **SUB-01**: Admin can generate a unique submission link from the admin dashboard
+- [x] **SUB-02**: Admin can copy submission link to clipboard with one click
 - [ ] **SUB-03**: Admin can see how many submissions have been received
 - [ ] **SUB-04**: Admin can preview individual submissions (name + photo) before closing
 
 ### Worker Submission
-- [ ] **WORK-01**: Worker can visit submission link, enter their name, and upload a desk photo
-- [ ] **WORK-02**: Worker sees a confirmation page after successful submission
-- [ ] **WORK-03**: Duplicate names are prevented (worker warned if name already taken)
+- [x] **WORK-01**: Worker can visit submission link, enter their name, and upload a desk photo
+- [x] **WORK-02**: Worker sees a confirmation page after successful submission
+- [x] **WORK-03**: Duplicate names are prevented (worker warned if name already taken)
 
 ### State Management
 - [ ] **STATE-01**: Quiz enforces states: collecting submissions → closed → playable
@@ -39,13 +39,13 @@
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| SUB-01 | 1 | Pending |
-| SUB-02 | 1 | Pending |
+| SUB-01 | 1 | Complete |
+| SUB-02 | 1 | Complete |
 | SUB-03 | 2 | Pending |
 | SUB-04 | 2 | Pending |
-| WORK-01 | 1 | Pending |
-| WORK-02 | 1 | Pending |
-| WORK-03 | 1 | Pending |
+| WORK-01 | 1 | Complete |
+| WORK-02 | 1 | Complete |
+| WORK-03 | 1 | Complete |
 | STATE-01 | 3 | Pending |
 | STATE-02 | 3 | Pending |
 | STATE-03 | 3 | Pending |
