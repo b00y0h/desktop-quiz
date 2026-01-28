@@ -3,9 +3,9 @@
 ## Milestone v1.2: Postgres Migration
 
 ### Database Setup (DB)
-- [ ] **DB-01**: Vercel Postgres database provisioned and connected
-- [ ] **DB-02**: Drizzle ORM configured with type-safe schema
-- [ ] **DB-03**: Database schema defines quizzes, questions, participants, answers, submissions tables
+- [x] **DB-01**: Vercel Postgres database provisioned and connected
+- [x] **DB-02**: Drizzle ORM configured with type-safe schema
+- [x] **DB-03**: Database schema defines quizzes, questions, participants, answers, submissions tables
 
 ### Store Rewrite (STORE)
 - [ ] **STORE-01**: Store layer uses Postgres instead of Blob JSON for all quiz data
@@ -34,9 +34,9 @@ All 14 requirements complete — see [milestone archive](milestones/v1.1-ROADMAP
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| DB-01 | 5 | Pending |
-| DB-02 | 5 | Pending |
-| DB-03 | 5 | Pending |
+| DB-01 | 5 | Complete |
+| DB-02 | 5 | Complete |
+| DB-03 | 5 | Complete |
 | STORE-01 | 6 | Pending |
 | STORE-02 | 6 | Pending |
 | STORE-03 | 6 | Pending |
