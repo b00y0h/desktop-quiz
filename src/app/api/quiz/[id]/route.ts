@@ -26,6 +26,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       names: quiz.questions.map(q => q.answer),
       submissionToken: isAdmin ? quiz.submissionToken : undefined,
       submissionCount: isAdmin ? quiz.submissions.length : undefined,
+      submissions: isAdmin ? quiz.submissions : undefined,
     })
   } catch (err) {
     console.error('Get quiz error:', err)
