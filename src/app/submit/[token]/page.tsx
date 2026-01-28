@@ -41,7 +41,7 @@ export default function SubmitPage() {
         if (res.status === 404) {
           setError('Invalid submission link')
         } else if (res.status === 410) {
-          setError('Submissions are closed')
+          setError('Submissions for this quiz have been closed. Thank you!')
         } else if (res.ok) {
           const data = await res.json()
           setTokenInfo(data)
