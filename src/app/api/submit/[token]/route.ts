@@ -63,8 +63,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
     }
 
     const submittedCookie = req.cookies.get(`submitted-${quiz.id}`)
-    const submittedId = submittedCookie?.value
-    if (submittedId && quiz.submissions.some(s => s.id === submittedId)) {
+    if (submittedCookie?.value) {
       return NextResponse.json({ error: 'You have already submitted' }, { status: 403 })
     }
 
