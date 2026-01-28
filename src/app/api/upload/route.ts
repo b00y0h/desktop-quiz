@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { put } from '@vercel/blob'
+import { validateImageFile } from '@/lib/image-validation'
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,6 +9,9 @@ export async function POST(req: NextRequest) {
     const pin = formData.get('pin') as string | null
 
     if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+
+    const validationError = validateImageFile(file)
+    if (validationError) return NextResponse.json(validationError, { status: 400 })
 
     const blob = await put(`quiz-images/${Date.now()}-${file.name}`, file, {
       access: 'public',

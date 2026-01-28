@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
+import { validateImageFile, IMAGE_ACCEPT } from '@/lib/image-validation'
 
 interface TokenInfo {
   quizId: string
@@ -80,6 +81,13 @@ export default function SubmitPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
+      const validationError = validateImageFile(selectedFile)
+      if (validationError) {
+        setUploadError(validationError.error)
+        e.target.value = ''
+        return
+      }
+      setUploadError(null)
       setFile(selectedFile)
       const url = URL.createObjectURL(selectedFile)
       setPreviewUrl(url)
@@ -214,7 +222,7 @@ export default function SubmitPage() {
             <input
               id="file"
               type="file"
-              accept="image/*"
+              accept={IMAGE_ACCEPT}
               onChange={handleFileChange}
               required
               className="w-full px-4 py-3 bg-surface rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary file:text-white hover:file:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary"

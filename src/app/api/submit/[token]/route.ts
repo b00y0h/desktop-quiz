@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { store } from '@/lib/store'
 import { put } from '@vercel/blob'
+import { validateImageFile } from '@/lib/image-validation'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -55,8 +56,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
       return NextResponse.json({ error: 'Image file is required' }, { status: 400 })
     }
 
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'File must be an image' }, { status: 400 })
+    const validationError = validateImageFile(file)
+    if (validationError) {
+      return NextResponse.json(validationError, { status: 400 })
     }
 
     const hasDuplicate = await store.hasSubmissionName(quiz.id, name.trim())

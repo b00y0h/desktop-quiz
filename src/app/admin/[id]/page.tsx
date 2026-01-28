@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import { validateImageFile, IMAGE_ACCEPT } from '@/lib/image-validation'
 
 interface Question { id: string; imageUrl: string; answer: string; order: number }
 interface Submission { id: string; name: string; imageUrl: string; createdAt: string }
@@ -57,6 +58,9 @@ export default function AdminQuiz() {
     const file = e.target.files?.[0]
     if (!file) { setError('No file selected'); return }
     if (!newAnswer.trim()) { setError('Enter a name before uploading'); return }
+
+    const validationError = validateImageFile(file)
+    if (validationError) { setError(validationError.error); return }
 
     setUploading(true)
     setError('')
@@ -486,7 +490,7 @@ export default function AdminQuiz() {
             {uploading ? 'Uploading...' : 'Upload Image'}
             <input
               type="file"
-              accept="image/*"
+              accept={IMAGE_ACCEPT}
               onChange={handleImageUpload}
               disabled={!newAnswer.trim() || uploading}
               className="hidden"
