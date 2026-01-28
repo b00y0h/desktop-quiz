@@ -150,16 +150,16 @@ export default function AdminQuiz() {
       return { ...prev, questions: filtered, questionCount: filtered.length }
     })
     try {
-      await fetch(`/api/quiz/${id}/questions`, {
+      const res = await fetch(`/api/quiz/${id}/questions`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ questionId, pin }),
       })
-      // Reload after delay for consistency
-      setTimeout(async () => {
+      if (!res.ok) {
+        setError('Remove failed')
         const updated = await loadQuiz(pin)
         if (updated) setQuiz(updated)
-      }, 2000)
+      }
     } catch (err) {
       setError(`Remove failed: ${err instanceof Error ? err.message : String(err)}`)
       // Revert on error
@@ -248,15 +248,16 @@ export default function AdminQuiz() {
       return { ...prev, submissions: filtered, submissionCount: filtered.length }
     })
     try {
-      await fetch(`/api/quiz/${id}`, {
+      const res = await fetch(`/api/quiz/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'deleteSubmission', pin, submissionId }),
       })
-      setTimeout(async () => {
+      if (!res.ok) {
+        setError('Delete failed')
         const updated = await loadQuiz(pin)
         if (updated) setQuiz(updated)
-      }, 2000)
+      }
     } catch (err) {
       setError(`Delete failed: ${err instanceof Error ? err.message : String(err)}`)
       const updated = await loadQuiz(pin)

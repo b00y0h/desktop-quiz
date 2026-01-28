@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { store } from '@/lib/store'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 export const maxDuration = 30
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
