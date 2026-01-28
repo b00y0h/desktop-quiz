@@ -202,8 +202,8 @@ export default function AdminQuiz() {
         setError(data.error || 'Status change failed')
         return
       }
-      const updated = await loadQuiz(pin)
-      if (updated) setQuiz(updated)
+      // Optimistically update status — CDN re-fetch may return stale data
+      setQuiz(prev => prev ? { ...prev, status: newStatus } : prev)
     } catch (err) {
       setError(`Status change failed: ${err instanceof Error ? err.message : String(err)}`)
     }
@@ -221,8 +221,8 @@ export default function AdminQuiz() {
         setError(data.error || 'Failed to close submissions')
         return
       }
-      const updated = await loadQuiz(pin)
-      if (updated) setQuiz(updated)
+      // Optimistically update status — CDN re-fetch may return stale data
+      setQuiz(prev => prev ? { ...prev, status: 'closed' } : prev)
     } catch (err) {
       setError(`Failed to close submissions: ${err instanceof Error ? err.message : String(err)}`)
     }

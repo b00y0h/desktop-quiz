@@ -58,7 +58,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
 
     if (action === 'closeSubmissions') {
-      const result = await store.closeSubmissions(id, pin)
+      const result = await store.closeSubmissions(id, pin, quiz)
       if (!result) return NextResponse.json({ error: 'Quiz not in collecting state or invalid PIN' }, { status: 400 })
       return NextResponse.json({ success: true, status: 'closed' })
     }

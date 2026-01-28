@@ -283,11 +283,13 @@ export const store = {
     return true
   },
 
-  async closeSubmissions(quizId: string, adminPin: string): Promise<Quiz | null> {
-    const quiz = await loadQuiz(quizId)
+  async closeSubmissions(quizId: string, adminPin: string, preloadedQuiz?: Quiz): Promise<Quiz | null> {
+    const quiz = preloadedQuiz ?? await loadQuiz(quizId)
     if (!quiz) return null
     if (quiz.adminPin !== adminPin) return null
-    if (quiz.status !== 'collecting') return null
+    // Accept both 'collecting' and 'draft' — CDN may serve stale data
+    // where status hasn't propagated from generateSubmissionToken yet
+    if (quiz.status !== 'collecting' && quiz.status !== 'draft') return null
 
     // Generate questions from submissions
     if (quiz.submissions.length > 0) {
