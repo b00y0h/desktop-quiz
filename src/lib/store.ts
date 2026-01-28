@@ -61,6 +61,14 @@ function genCode(): string {
 
 const QUIZ_PREFIX = 'quiz-data/'
 
+// Valid state transitions
+const VALID_TRANSITIONS: Record<Quiz['status'], Quiz['status'][]> = {
+  draft: ['collecting'],
+  collecting: ['closed'],
+  closed: ['active'],
+  active: ['closed'],
+}
+
 async function saveQuiz(quiz: Quiz): Promise<void> {
   await put(`${QUIZ_PREFIX}${quiz.id}.json`, JSON.stringify(quiz), {
     access: 'public',
@@ -136,6 +144,9 @@ export const store = {
   async updateQuizStatus(id: string, status: Quiz['status']): Promise<Quiz | null> {
     const quiz = await loadQuiz(id)
     if (!quiz) return null
+    // Validate state transition
+    const allowedTransitions = VALID_TRANSITIONS[quiz.status]
+    if (!allowedTransitions.includes(status)) return null
     quiz.status = status
     await saveQuiz(quiz)
     return quiz
@@ -250,5 +261,15 @@ export const store = {
     if (!quiz) return false
     const normalizedName = name.trim().toLowerCase()
     return quiz.submissions.some(s => s.name.trim().toLowerCase() === normalizedName)
+  },
+
+  async closeSubmissions(quizId: string, adminPin: string): Promise<Quiz | null> {
+    const quiz = await loadQuiz(quizId)
+    if (!quiz) return null
+    if (quiz.adminPin !== adminPin) return null
+    if (quiz.status !== 'collecting') return null
+    quiz.status = 'closed'
+    await saveQuiz(quiz)
+    return quiz
   },
 }
