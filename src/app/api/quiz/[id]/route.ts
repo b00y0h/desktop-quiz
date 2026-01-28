@@ -48,7 +48,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ token, submissionUrl: `/submit/${token}` })
     }
 
-    if (status) await store.updateQuizStatus(id, status)
+    if (action === 'closeSubmissions') {
+      const result = await store.closeSubmissions(id, pin)
+      if (!result) return NextResponse.json({ error: 'Quiz not in collecting state or invalid PIN' }, { status: 400 })
+      return NextResponse.json({ success: true, status: 'closed' })
+    }
+
+    if (status) {
+      const result = await store.updateQuizStatus(id, status)
+      if (!result) return NextResponse.json({ error: 'Invalid state transition' }, { status: 400 })
+    }
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('Update quiz error:', err)
