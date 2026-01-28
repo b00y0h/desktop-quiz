@@ -1,14 +1,32 @@
 /**
  * Migration script: Vercel Blob JSON -> Postgres
  *
- * Reads all quiz data from Blob storage (quiz-data/*.json)
- * and inserts into Postgres tables using Drizzle ORM.
+ * This script migrates quiz data from the legacy Vercel Blob JSON storage
+ * to the new Vercel Postgres database using Drizzle ORM.
  *
- * Usage: npx tsx scripts/migrate-blob-to-postgres.ts
+ * USAGE:
+ *   npm run migrate:blob-to-postgres
  *
- * Prerequisites:
- * - BLOB_READ_WRITE_TOKEN environment variable set
- * - POSTGRES_URL environment variable set
+ * PREREQUISITES:
+ *   - BLOB_READ_WRITE_TOKEN environment variable set (Vercel Blob access)
+ *   - POSTGRES_URL environment variable set (Vercel Postgres connection)
+ *   - Database schema already pushed (npm run db:push)
+ *
+ * BEHAVIOR:
+ *   - Reads all quiz-data/*.json files from Blob storage
+ *   - Inserts quiz records and all related data into Postgres
+ *   - Preserves all image URLs (images remain in Blob storage)
+ *   - Idempotent: safely skips quizzes that already exist in Postgres
+ *
+ * POST-MIGRATION:
+ *   - Verify data with npm run db:studio
+ *   - Test app functionality end-to-end
+ *   - Old Blob JSON files can be deleted manually after verification
+ *
+ * NOTES:
+ *   - Images are NOT migrated (they remain in Vercel Blob)
+ *   - Only quiz data (JSON) is migrated to Postgres
+ *   - Uses cache-busting to avoid stale CDN reads from Blob
  */
 
 import { list } from '@vercel/blob'
