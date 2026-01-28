@@ -29,6 +29,10 @@ export default function CreateQuiz() {
       if (!res.ok) throw new Error(data.error)
       // Store pin in sessionStorage for admin access
       sessionStorage.setItem(`quiz-pin-${data.id}`, pin)
+      // Track quiz in localStorage for home dashboard
+      const saved = JSON.parse(localStorage.getItem('my-quizzes') || '[]')
+      saved.push(data.id)
+      localStorage.setItem('my-quizzes', JSON.stringify(saved))
       router.push(`/admin/${data.id}`)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to create quiz')
