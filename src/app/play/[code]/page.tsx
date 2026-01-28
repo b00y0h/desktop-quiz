@@ -21,10 +21,25 @@ export default function PlayQuiz() {
   const startTime = useRef(0)
 
   useEffect(() => {
-    fetch(`/api/quiz/code/${code}`).then(r => r.json()).then(d => {
-      if (d.error) setError(d.error)
-      else setQuiz(d)
-    })
+    fetch(`/api/quiz/code/${code}`)
+      .then(async r => {
+        const d = await r.json()
+        if (r.status === 403) {
+          // Handle status-based rejections
+          if (d.status === 'collecting' || d.status === 'draft') {
+            setError('This quiz is still collecting submissions. Please wait for the organizer to publish it.')
+          } else if (d.status === 'closed') {
+            setError('This quiz is almost ready! The organizer needs to publish it before you can play.')
+          } else {
+            setError(d.error || 'Quiz is not available')
+          }
+        } else if (d.error) {
+          setError(d.error)
+        } else {
+          setQuiz(d)
+        }
+      })
+      .catch(() => setError('Failed to load quiz'))
   }, [code])
 
   function startQuiz(e: React.FormEvent) {
