@@ -19,15 +19,30 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
       return NextResponse.json({ error: 'Submission period ended' }, { status: 410 })
     }
 
-    const alreadySubmitted = !!req.cookies.get(`submitted-${quiz.id}`)
+    const submittedCookie = req.cookies.get(`submitted-${quiz.id}`)
+    const submittedId = submittedCookie?.value
+    const alreadySubmitted = !!submittedId && quiz.submissions.some(s => s.id === submittedId)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       quizId: quiz.id,
       quizTitle: quiz.title,
       submissionCount: quiz.submissions.length,
       names: quiz.submissions.map(s => s.name),
       alreadySubmitted,
     })
+
+    // Clear stale cookie if submission was deleted by admin
+    if (submittedId && !alreadySubmitted) {
+      response.cookies.set(`submitted-${quiz.id}`, '', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 0,
+        path: '/',
+      })
+    }
+
+    return response
   } catch (err) {
     console.error('Get submission token error:', err)
     return NextResponse.json({ error: String(err) }, { status: 500 })
@@ -48,7 +63,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
     }
 
     const submittedCookie = req.cookies.get(`submitted-${quiz.id}`)
-    if (submittedCookie) {
+    const submittedId = submittedCookie?.value
+    if (submittedId && quiz.submissions.some(s => s.id === submittedId)) {
       return NextResponse.json({ error: 'You have already submitted' }, { status: 403 })
     }
 
@@ -101,7 +117,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
       },
     })
 
-    response.cookies.set(`submitted-${quiz.id}`, '1', {
+    response.cookies.set(`submitted-${quiz.id}`, submission.id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
