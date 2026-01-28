@@ -23,26 +23,23 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
     const submittedId = submittedCookie?.value
     const alreadySubmitted = !!submittedId && quiz.submissions.some(s => s.id === submittedId)
 
-    const response = NextResponse.json({
+    const body = {
       quizId: quiz.id,
       quizTitle: quiz.title,
       submissionCount: quiz.submissions.length,
       names: quiz.submissions.map(s => s.name),
       alreadySubmitted,
-    })
+    }
+
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
 
     // Clear stale cookie if submission was deleted by admin
     if (submittedId && !alreadySubmitted) {
-      response.cookies.set(`submitted-${quiz.id}`, '', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 0,
-        path: '/',
-      })
+      const secure = process.env.NODE_ENV === 'production' ? '; Secure' : ''
+      headers['Set-Cookie'] = `submitted-${quiz.id}=; Path=/; Max-Age=0; SameSite=Lax${secure}`
     }
 
-    return response
+    return new Response(JSON.stringify(body), { status: 200, headers })
   } catch (err) {
     console.error('Get submission token error:', err)
     return NextResponse.json({ error: String(err) }, { status: 500 })
@@ -108,23 +105,25 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
       return NextResponse.json({ error: 'Failed to save submission' }, { status: 500 })
     }
 
-    const response = NextResponse.json({
+    const cookieName = `submitted-${quiz.id}`
+    const cookieValue = submission.id
+    const maxAge = 60 * 60 * 24 * 365 // 1 year
+    const secure = process.env.NODE_ENV === 'production' ? '; Secure' : ''
+    const setCookie = `${cookieName}=${cookieValue}; Path=/; Max-Age=${maxAge}; SameSite=Lax${secure}`
+
+    return new Response(JSON.stringify({
       success: true,
       submission: {
         id: submission.id,
         name: submission.name,
       },
+    }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Set-Cookie': setCookie,
+      },
     })
-
-    response.cookies.set(`submitted-${quiz.id}`, submission.id, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 365, // 1 year
-      path: '/',
-    })
-
-    return response
   } catch (err) {
     console.error('Submit error:', err)
     return NextResponse.json({ error: String(err) }, { status: 500 })
