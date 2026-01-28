@@ -126,7 +126,7 @@ async function migrateQuiz(quiz: BlobQuiz): Promise<boolean> {
     console.log(`  Inserted quiz record`)
 
     // Insert questions (preserve image URLs)
-    if (quiz.questions.length > 0) {
+    if (quiz.questions && quiz.questions.length > 0) {
       for (const q of quiz.questions) {
         await db.insert(questions).values({
           id: q.id,
@@ -140,7 +140,7 @@ async function migrateQuiz(quiz: BlobQuiz): Promise<boolean> {
     }
 
     // Insert submissions (preserve image URLs)
-    if (quiz.submissions.length > 0) {
+    if (quiz.submissions && quiz.submissions.length > 0) {
       for (const s of quiz.submissions) {
         await db.insert(submissions).values({
           id: s.id,
@@ -154,7 +154,7 @@ async function migrateQuiz(quiz: BlobQuiz): Promise<boolean> {
     }
 
     // Insert participants and their answers
-    if (quiz.participants.length > 0) {
+    if (quiz.participants && quiz.participants.length > 0) {
       for (const p of quiz.participants) {
         await db.insert(participants).values({
           id: p.id,
@@ -167,7 +167,7 @@ async function migrateQuiz(quiz: BlobQuiz): Promise<boolean> {
         })
 
         // Insert answers for this participant
-        if (p.answers.length > 0) {
+        if (p.answers && p.answers.length > 0) {
           for (const a of p.answers) {
             await db.insert(answers).values({
               id: a.id,
