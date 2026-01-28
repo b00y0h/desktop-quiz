@@ -19,9 +19,15 @@ The app supports the full quiz lifecycle:
 4. Questions auto-generate (one per submission, 4-5 randomized name choices)
 5. Players take the quiz and see scored results with leaderboard
 
-## Next Milestone Goals
+## Current Milestone: v1.2 — Postgres Migration
 
-To be defined — run `/gsd:new-milestone` to start the next milestone.
+**Goal:** Migrate quiz data storage from Vercel Blob JSON files to Vercel Postgres for improved performance and reliability, while keeping image uploads on Vercel Blob.
+
+**Target changes:**
+- Replace JSON blob storage with Postgres database
+- Eliminate CDN caching issues causing stale reads
+- Maintain all existing user-facing functionality
+- Keep image storage on Vercel Blob (no change)
 
 ## Architecture
 
@@ -34,4 +40,4 @@ Single-tier Next.js app with Vercel Blob storage. No database. See `.planning/co
 - Client-rendered React (no SSR)
 
 ---
-*Last updated: 2026-01-28 after v1.1 milestone completion*
+*Last updated: 2026-01-28 — Milestone v1.2 started*
