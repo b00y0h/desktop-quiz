@@ -37,7 +37,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
-    const { status, pin, action } = await req.json()
+    const { status, pin, action, submissionId } = await req.json()
     const quiz = await store.getQuiz(id)
     if (!quiz) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     if (pin !== quiz.adminPin) return NextResponse.json({ error: 'Invalid PIN' }, { status: 403 })
@@ -46,6 +46,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       const token = await store.generateSubmissionToken(id, pin)
       if (!token) return NextResponse.json({ error: 'Failed to generate token' }, { status: 500 })
       return NextResponse.json({ token, submissionUrl: `/submit/${token}` })
+    }
+
+    if (action === 'deleteSubmission') {
+      if (!submissionId) return NextResponse.json({ error: 'Missing submissionId' }, { status: 400 })
+      const deleted = await store.deleteSubmission(id, submissionId, pin)
+      if (!deleted) return NextResponse.json({ error: 'Submission not found or quiz not collecting' }, { status: 400 })
+      return NextResponse.json({ success: true })
     }
 
     if (action === 'closeSubmissions') {

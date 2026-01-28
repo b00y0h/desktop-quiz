@@ -236,6 +236,30 @@ export default function AdminQuiz() {
     }
   }
 
+  async function deleteSubmission(submissionId: string) {
+    if (!confirm('Delete this submission?')) return
+    setQuiz(prev => {
+      if (!prev || !prev.submissions) return prev
+      const filtered = prev.submissions.filter(s => s.id !== submissionId)
+      return { ...prev, submissions: filtered, submissionCount: filtered.length }
+    })
+    try {
+      await fetch(`/api/quiz/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'deleteSubmission', pin, submissionId }),
+      })
+      setTimeout(async () => {
+        const updated = await loadQuiz(pin)
+        if (updated) setQuiz(updated)
+      }, 2000)
+    } catch (err) {
+      setError(`Delete failed: ${err instanceof Error ? err.message : String(err)}`)
+      const updated = await loadQuiz(pin)
+      if (updated) setQuiz(updated)
+    }
+  }
+
   function copySubmissionLink() {
     const url = `${window.location.origin}/submit/${quiz?.submissionToken}`
     navigator.clipboard.writeText(url)
@@ -426,7 +450,18 @@ export default function AdminQuiz() {
                     className="w-full h-32 object-cover"
                     onError={e => { (e.target as HTMLImageElement).src = ''; (e.target as HTMLImageElement).alt = 'Failed to load' }}
                   />
-                  <p className="p-3 text-sm font-medium truncate">{sub.name}</p>
+                  <div className="flex items-center justify-between p-3">
+                    <p className="text-sm font-medium truncate">{sub.name}</p>
+                    {quiz.status === 'collecting' && (
+                      <button
+                        onClick={() => deleteSubmission(sub.id)}
+                        className="text-red-400 hover:bg-red-500/10 rounded p-1 transition text-xs ml-2 shrink-0"
+                        title="Delete submission"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

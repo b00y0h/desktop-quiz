@@ -263,6 +263,19 @@ export const store = {
     return quiz.submissions.some(s => s.name.trim().toLowerCase() === normalizedName)
   },
 
+  async deleteSubmission(quizId: string, submissionId: string, adminPin: string): Promise<boolean> {
+    const quiz = await loadQuiz(quizId)
+    if (!quiz) return false
+    if (quiz.adminPin !== adminPin) return false
+    if (quiz.status !== 'collecting') return false
+    const idx = quiz.submissions.findIndex(s => s.id === submissionId)
+    if (idx === -1) return false
+    const [removed] = quiz.submissions.splice(idx, 1)
+    await saveQuiz(quiz)
+    try { await del(removed.imageUrl) } catch { /* blob may already be gone */ }
+    return true
+  },
+
   async closeSubmissions(quizId: string, adminPin: string): Promise<Quiz | null> {
     const quiz = await loadQuiz(quizId)
     if (!quiz) return null
