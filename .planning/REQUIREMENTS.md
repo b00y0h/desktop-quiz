@@ -3,21 +3,21 @@
 ## Milestone v1.3: Super Admin Dashboard
 
 ### Authentication (AUTH)
-- [ ] **AUTH-01**: Super admin can access dashboard via master PIN (stored in env var)
-- [ ] **AUTH-02**: Invalid master PIN shows error without revealing dashboard
-- [ ] **AUTH-03**: Super admin session persists (doesn't require PIN on every action)
+- [x] **AUTH-01**: Super admin can access dashboard via master PIN (stored in env var)
+- [x] **AUTH-02**: Invalid master PIN shows error without revealing dashboard
+- [x] **AUTH-03**: Super admin session persists (doesn't require PIN on every action)
 
 ### Quiz Listing (LIST)
-- [ ] **LIST-01**: Dashboard displays all quizzes in the system
-- [ ] **LIST-02**: Each quiz shows title, code, status, and created date
-- [ ] **LIST-03**: Each quiz shows submission count
-- [ ] **LIST-04**: Each quiz shows participant count
+- [x] **LIST-01**: Dashboard displays all quizzes in the system
+- [x] **LIST-02**: Each quiz shows title, code, status, and created date
+- [x] **LIST-03**: Each quiz shows submission count
+- [x] **LIST-04**: Each quiz shows participant count
 
 ### Quiz Management (MGMT)
-- [ ] **MGMT-01**: Super admin can navigate to quiz detail view
-- [ ] **MGMT-02**: Super admin can delete any quiz (bypasses individual quiz PIN)
-- [ ] **MGMT-03**: Delete confirmation required before removing quiz
-- [ ] **MGMT-04**: Quiz deletion cascades to Blob images (already implemented in store, needs super admin path)
+- [x] **MGMT-01**: Super admin can navigate to quiz detail view
+- [x] **MGMT-02**: Super admin can delete any quiz (bypasses individual quiz PIN)
+- [x] **MGMT-03**: Delete confirmation required before removing quiz
+- [x] **MGMT-04**: Quiz deletion cascades to Blob images (already implemented in store, needs super admin path)
 
 ---
 
@@ -40,14 +40,14 @@
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| AUTH-01 | Phase 8 | Pending |
-| AUTH-02 | Phase 8 | Pending |
-| AUTH-03 | Phase 8 | Pending |
-| LIST-01 | Phase 8 | Pending |
-| LIST-02 | Phase 8 | Pending |
-| LIST-03 | Phase 8 | Pending |
-| LIST-04 | Phase 8 | Pending |
-| MGMT-01 | Phase 8 | Pending |
-| MGMT-02 | Phase 8 | Pending |
-| MGMT-03 | Phase 8 | Pending |
-| MGMT-04 | Phase 8 | Pending |
+| AUTH-01 | Phase 8 | Complete |
+| AUTH-02 | Phase 8 | Complete |
+| AUTH-03 | Phase 8 | Complete |
+| LIST-01 | Phase 8 | Complete |
+| LIST-02 | Phase 8 | Complete |
+| LIST-03 | Phase 8 | Complete |
+| LIST-04 | Phase 8 | Complete |
+| MGMT-01 | Phase 8 | Complete |
+| MGMT-02 | Phase 8 | Complete |
+| MGMT-03 | Phase 8 | Complete |
+| MGMT-04 | Phase 8 | Complete |

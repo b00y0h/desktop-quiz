@@ -9,7 +9,7 @@
 
 ---
 
-### Phase 8: Super Admin Dashboard
+### Phase 8: Super Admin Dashboard ✓
 **Goal:** Super admin can view all quizzes and delete them securely
 
 **Requirements:** AUTH-01, AUTH-02, AUTH-03, LIST-01, LIST-02, LIST-03, LIST-04, MGMT-01, MGMT-02, MGMT-03, MGMT-04
@@ -18,12 +18,12 @@
 
 **Plans:** 3 plans in 2 waves
 
-**Status:** Planned
+**Status:** Complete
 
 Plans:
-- [ ] 08-01-PLAN.md — Super admin authentication (AUTH-01, AUTH-02, AUTH-03)
-- [ ] 08-02-PLAN.md — Dashboard UI with quiz listing (LIST-01 to LIST-04, MGMT-01)
-- [ ] 08-03-PLAN.md — Quiz deletion with confirmation (MGMT-02, MGMT-03, MGMT-04)
+- [x] 08-01-PLAN.md — Super admin authentication (AUTH-01, AUTH-02, AUTH-03)
+- [x] 08-02-PLAN.md — Dashboard UI with quiz listing (LIST-01 to LIST-04, MGMT-01)
+- [x] 08-03-PLAN.md — Quiz deletion with confirmation (MGMT-02, MGMT-03, MGMT-04)
 
 **Success criteria:**
 1. Super admin can access dashboard by entering correct master PIN from env var
@@ -40,7 +40,7 @@ Plans:
 
 | Phase | Goal | Requirements | Status |
 |-------|------|--------------|--------|
-| 8 | Super Admin Dashboard | 11 | Planned (3 plans) |
+| 8 | Super Admin Dashboard | 11 | ✓ Complete |
 
 **Total:** 1 phase, 11 requirements
 
@@ -50,17 +50,17 @@ Plans:
 
 | REQ-ID | Phase | Description | Status |
 |--------|-------|-------------|--------|
-| AUTH-01 | 8 | Super admin access via master PIN | Pending |
-| AUTH-02 | 8 | Invalid PIN shows error | Pending |
-| AUTH-03 | 8 | Session persists | Pending |
-| LIST-01 | 8 | Dashboard displays all quizzes | Pending |
-| LIST-02 | 8 | Shows title, code, status, date | Pending |
-| LIST-03 | 8 | Shows submission count | Pending |
-| LIST-04 | 8 | Shows participant count | Pending |
-| MGMT-01 | 8 | Navigate to quiz detail | Pending |
-| MGMT-02 | 8 | Delete any quiz | Pending |
-| MGMT-03 | 8 | Delete confirmation required | Pending |
-| MGMT-04 | 8 | Deletion cascades to Blob | Pending |
+| AUTH-01 | 8 | Super admin access via master PIN | ✓ Complete |
+| AUTH-02 | 8 | Invalid PIN shows error | ✓ Complete |
+| AUTH-03 | 8 | Session persists | ✓ Complete |
+| LIST-01 | 8 | Dashboard displays all quizzes | ✓ Complete |
+| LIST-02 | 8 | Shows title, code, status, date | ✓ Complete |
+| LIST-03 | 8 | Shows submission count | ✓ Complete |
+| LIST-04 | 8 | Shows participant count | ✓ Complete |
+| MGMT-01 | 8 | Navigate to quiz detail | ✓ Complete |
+| MGMT-02 | 8 | Delete any quiz | ✓ Complete |
+| MGMT-03 | 8 | Delete confirmation required | ✓ Complete |
+| MGMT-04 | 8 | Deletion cascades to Blob | ✓ Complete |
 
 **Coverage:** 11/11 requirements (100%)
 
@@ -81,4 +81,4 @@ Plans:
 
 ---
 
-*Last updated: 2026-01-28*
+*Last updated: 2026-01-28 — Phase 8 complete*
