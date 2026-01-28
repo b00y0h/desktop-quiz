@@ -30,14 +30,39 @@
 3. ✓ Image uploads still use Vercel Blob
 4. ✓ Quiz CRUD operations work end-to-end
 
-### Phase 7: Data Migration & Verification
+### Phase 7: Data Migration & Verification ✓
 **Goal:** Migrate existing Blob data to Postgres and verify all functionality
 **Requirements:** MIG-01, MIG-02, MIG-03, VER-01, VER-02
+**Status:** Complete
 **Success criteria:**
-1. Migration script successfully reads all Blob JSON quizzes
-2. All quiz data migrated to Postgres with correct relationships
-3. Image URLs preserved and working
-4. Full app functionality verified (create, submit, play, results)
+1. ✓ Migration script successfully reads all Blob JSON quizzes
+2. ✓ All quiz data migrated to Postgres with correct relationships
+3. ✓ Image URLs preserved and working
+4. ✓ Full app functionality verified (create, submit, play, results)
+
+**Post-Migration State:**
+- Quiz data now lives in Vercel Postgres (5 tables)
+- Images continue to live in Vercel Blob
+- Old `quiz-data/*.json` files in Blob can be archived/deleted
+- Store layer only uses Blob for image operations
+
+**Benefits Achieved:**
+- No more CDN stale read issues (direct DB queries)
+- Reduced Blob storage costs (only images, no JSON)
+- Support for DB transactions and indexes if needed
+
+---
+
+## Milestone v1.2 Complete
+
+All 11 requirements (DB-01 through VER-02) have been satisfied.
+
+**Summary:**
+- Phase 5: Database foundation with Drizzle ORM and Vercel Postgres
+- Phase 6: Store layer rewritten to use Postgres with same interface
+- Phase 7: Migration script executed, data verified, documentation complete
+
+This milestone can be archived to `milestones/v1.2-ROADMAP.md`.
 
 ---
 
