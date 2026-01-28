@@ -4,7 +4,8 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
 interface Question { id: string; imageUrl: string; answer: string; order: number }
-interface QuizData { id: string; title: string; code: string; status: string; questions: Question[]; questionCount: number; submissionToken?: string; submissionCount?: number }
+interface Submission { id: string; name: string; imageUrl: string; createdAt: string }
+interface QuizData { id: string; title: string; code: string; status: string; questions: Question[]; questionCount: number; submissionToken?: string; submissionCount?: number; submissions?: Submission[] }
 
 export default function AdminQuiz() {
   const params = useParams()
