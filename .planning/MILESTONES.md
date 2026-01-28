@@ -1,5 +1,33 @@
 # Project Milestones: Desk Quiz App
 
+## v1.3 Super Admin Dashboard (Shipped: 2026-01-28)
+
+**Delivered:** Added super admin dashboard for system-wide quiz management with secure PIN authentication and cascade delete.
+
+**Phases completed:** 8 (3 plans total)
+
+**Key accomplishments:**
+
+- Super admin authentication with master PIN from environment variable and secure httpOnly cookie sessions
+- Dashboard listing all quizzes with title, code, status, created date, submission count, and participant count
+- Quiz navigation — super admin can view any quiz detail via existing admin UI
+- Quiz deletion with confirmation dialog that bypasses individual quiz PIN
+- Blob cascade delete preserved for super admin deletions (images removed automatically)
+- Feature safety — dashboard disabled when SUPER_ADMIN_PIN not configured (returns 503)
+
+**Stats:**
+
+- 10 files changed
+- 556 lines of TypeScript (new files)
+- 1 phase, 3 plans, 8 commits
+- Single session on 2026-01-28
+
+**Git range:** `561f805` → `78a4d09`
+
+**What's next:** TBD — next milestone planning required
+
+---
+
 ## v1.2 Postgres Migration (Shipped: 2026-01-28)
 
 **Delivered:** Migrated quiz data storage from Vercel Blob JSON files to Vercel Postgres for improved performance and reliability.
