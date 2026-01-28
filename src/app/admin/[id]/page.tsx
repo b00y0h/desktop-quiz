@@ -21,17 +21,28 @@ export default function AdminQuiz() {
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
   const [submissionCopied, setSubmissionCopied] = useState(false)
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set())
 
   const loadQuiz = useCallback(async (adminPin: string) => {
     try {
       const res = await fetch(`/api/quiz/${id}?pin=${adminPin}`)
       if (!res.ok) return null
-      return await res.json() as QuizData
+      const data = await res.json() as QuizData
+      // Filter out items deleted locally that the CDN hasn't caught up with
+      if (deletedIds.size > 0) {
+        data.questions = data.questions.filter(q => !deletedIds.has(q.id))
+        data.questionCount = data.questions.length
+        if (data.submissions) {
+          data.submissions = data.submissions.filter(s => !deletedIds.has(s.id))
+          data.submissionCount = data.submissions.length
+        }
+      }
+      return data
     } catch (err) {
       console.error('Failed to load quiz:', err)
       return null
     }
-  }, [id])
+  }, [id, deletedIds])
 
   useEffect(() => {
     const savedPin = sessionStorage.getItem(`quiz-pin-${id}`)
@@ -143,7 +154,7 @@ export default function AdminQuiz() {
   }
 
   async function removeQuestion(questionId: string) {
-    // Optimistically remove from UI
+    setDeletedIds(prev => new Set(prev).add(questionId))
     setQuiz(prev => {
       if (!prev) return prev
       const filtered = prev.questions.filter(q => q.id !== questionId)
@@ -158,12 +169,13 @@ export default function AdminQuiz() {
       })
       if (!res.ok) {
         setError('Remove failed')
+        setDeletedIds(prev => { const next = new Set(prev); next.delete(questionId); return next })
         const updated = await loadQuiz(pin)
         if (updated) setQuiz(updated)
       }
     } catch (err) {
       setError(`Remove failed: ${err instanceof Error ? err.message : String(err)}`)
-      // Revert on error
+      setDeletedIds(prev => { const next = new Set(prev); next.delete(questionId); return next })
       const updated = await loadQuiz(pin)
       if (updated) setQuiz(updated)
     }
@@ -243,6 +255,7 @@ export default function AdminQuiz() {
 
   async function deleteSubmission(submissionId: string) {
     if (!confirm('Delete this submission?')) return
+    setDeletedIds(prev => new Set(prev).add(submissionId))
     setQuiz(prev => {
       if (!prev || !prev.submissions) return prev
       const filtered = prev.submissions.filter(s => s.id !== submissionId)
@@ -256,11 +269,13 @@ export default function AdminQuiz() {
       })
       if (!res.ok) {
         setError('Delete failed')
+        setDeletedIds(prev => { const next = new Set(prev); next.delete(submissionId); return next })
         const updated = await loadQuiz(pin)
         if (updated) setQuiz(updated)
       }
     } catch (err) {
       setError(`Delete failed: ${err instanceof Error ? err.message : String(err)}`)
+      setDeletedIds(prev => { const next = new Set(prev); next.delete(submissionId); return next })
       const updated = await loadQuiz(pin)
       if (updated) setQuiz(updated)
     }
