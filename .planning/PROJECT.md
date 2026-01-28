@@ -8,53 +8,20 @@ A fun workplace quiz app where coworkers guess whose desk belongs to whom. Worke
 
 **Make it dead simple for a group to create and play a "guess the desk" quiz** — the admin creates a quiz, shares a submission link, workers upload their desk photos, admin closes submissions, and the quiz auto-generates for everyone to play.
 
-## Current Milestone: v1.1 Submission-Based Quiz Flow
+## Current State
 
-**Goal:** Allow workers to self-submit desk photos via a unique link, then auto-generate quiz questions from those submissions.
+**Shipped: v1.1 — Submission-Based Quiz Flow**
 
-**Target features:**
-- Admin creates a submission link for a quiz
-- Workers visit the link, enter their name, upload a desk photo
-- Admin closes submissions from the dashboard
-- Quiz questions auto-generate from submissions (4-5 multiple choice names per question)
-- Enforced quiz states: collecting → closed → playable
+The app supports the full quiz lifecycle:
+1. Admin creates quiz and generates a unique submission link
+2. Workers visit the link, enter name, upload desk photo (with duplicate detection)
+3. Admin previews submissions in a gallery, then closes submissions
+4. Questions auto-generate (one per submission, 4-5 randomized name choices)
+5. Players take the quiz and see scored results with leaderboard
 
-## Requirements
+## Next Milestone Goals
 
-### Validated
-
-- ✓ Admin can create a quiz with title, description, and PIN — existing
-- ✓ Admin can manually add questions with uploaded images — existing
-- ✓ Players can join a quiz by 6-character code — existing
-- ✓ Players answer questions and see scored results with leaderboard — existing
-- ✓ Admin can view live results dashboard — existing
-- ✓ Names from previous submissions are filtered from answer options — existing
-- ✓ Players can retake quiz (overwrites previous submission) — existing
-
-### Active
-
-- [ ] Admin can generate a unique submission link for a quiz
-- [ ] Workers can visit submission link, enter name, upload desk photo
-- [ ] Admin can close submissions from the admin dashboard
-- [ ] Quiz questions auto-generate from submissions (subset of 4-5 name choices)
-- [ ] Quiz enforces states: collecting submissions → closed → playable
-- [ ] Existing manual question creation flow still works alongside submission flow
-
-### Out of Scope
-
-- Automatic closing (deadlines/thresholds) — keep it simple, admin button only
-- OAuth or user accounts — stay with current PIN-based admin auth
-- Real-time submission notifications — admin can refresh to see new submissions
-
-## Key Decisions
-
-| Decision | Rationale | Outcome |
-|----------|-----------|---------|
-| Auto-generate questions from submissions | Eliminates admin manual work | — Pending |
-| Separate submission link (not reuse quiz code) | Clearer separation of concerns | — Pending |
-| Enforced quiz states | Prevents playing before submissions close | — Pending |
-| 4-5 name subset for answer choices | Better UX than showing all names | — Pending |
-| Keep both manual and submission flows | Flexibility for different use cases | — Pending |
+To be defined — run `/gsd:new-milestone` to start the next milestone.
 
 ## Architecture
 
@@ -67,4 +34,4 @@ Single-tier Next.js app with Vercel Blob storage. No database. See `.planning/co
 - Client-rendered React (no SSR)
 
 ---
-*Last updated: 2026-01-27 after initialization*
+*Last updated: 2026-01-28 after v1.1 milestone completion*
