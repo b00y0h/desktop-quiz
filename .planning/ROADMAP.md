@@ -47,20 +47,20 @@
 4. ~~Player attempting to play quiz before closing sees "quiz not ready" message~~
 5. ~~Once closed, quiz becomes playable for participants~~
 
-### Phase 4: Auto-Generation of Quiz Questions
+### Phase 4: Auto-Generation of Quiz Questions ✅
 **Goal:** Automatically generate quiz questions from submissions when admin closes
 **Requirements:** GEN-01, GEN-02, GEN-03
 **Plans:**
-1. Build question generation algorithm that creates one question per submission
-2. Implement answer option randomization (4-5 names including correct answer)
-3. Integrate question generation into the "close submissions" workflow
+1. ~~Build question generation algorithm that creates one question per submission~~
+2. ~~Implement answer option randomization (4-5 names including correct answer)~~
+3. ~~Integrate question generation into the "close submissions" workflow~~
 
 **Success Criteria:**
-1. When admin closes submissions, questions automatically generate from all submissions
-2. Each submission becomes exactly one "Whose desk is this?" question with the desk photo
-3. Each question displays 4-5 randomized name choices including the correct answer
-4. Generated questions appear in admin dashboard and are playable by participants
-5. Questions can be played through the existing quiz flow without modification
+1. ~~When admin closes submissions, questions automatically generate from all submissions~~
+2. ~~Each submission becomes exactly one "Whose desk is this?" question with the desk photo~~
+3. ~~Each question displays 4-5 randomized name choices including the correct answer~~
+4. ~~Generated questions appear in admin dashboard and are playable by participants~~
+5. ~~Questions can be played through the existing quiz flow without modification~~
 
 ## Dependency Graph
 

@@ -20,9 +20,9 @@
 - [x] **STATE-04**: Players cannot play the quiz until submissions are closed
 
 ### Auto-Generation
-- [ ] **GEN-01**: Questions auto-generate from submissions when admin closes
-- [ ] **GEN-02**: Each submission becomes one "Whose desk is this?" question with the desk photo
-- [ ] **GEN-03**: Each question shows 4-5 random name choices including the correct answer
+- [x] **GEN-01**: Questions auto-generate from submissions when admin closes
+- [x] **GEN-02**: Each submission becomes one "Whose desk is this?" question with the desk photo
+- [x] **GEN-03**: Each question shows 4-5 random name choices including the correct answer
 
 ## Future Requirements
 
@@ -50,6 +50,6 @@
 | STATE-02 | 3 | Complete |
 | STATE-03 | 3 | Complete |
 | STATE-04 | 3 | Complete |
-| GEN-01 | 4 | Pending |
-| GEN-02 | 4 | Pending |
-| GEN-03 | 4 | Pending |
+| GEN-01 | 4 | Complete |
+| GEN-02 | 4 | Complete |
+| GEN-03 | 4 | Complete |
