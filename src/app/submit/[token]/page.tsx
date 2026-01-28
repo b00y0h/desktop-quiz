@@ -46,6 +46,11 @@ export default function SubmitPage() {
           setError('Submissions for this quiz have been closed. Thank you!')
         } else if (res.ok) {
           const data = await res.json()
+          // If server says not already submitted, clear any stale cookie
+          // so POST won't be blocked (handles admin-delete resubmission)
+          if (!data.alreadySubmitted && data.quizId) {
+            document.cookie = `submitted-${data.quizId}=; Path=/; Max-Age=0`
+          }
           setTokenInfo(data)
         } else {
           setError('Failed to validate submission link')

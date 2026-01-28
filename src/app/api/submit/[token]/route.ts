@@ -52,9 +52,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
     }
 
     const submittedCookie = req.cookies.get(`submitted-${quiz.id}`)
-    const submittedId = submittedCookie?.value
-    // Block if cookie exists AND that submission still exists (admin hasn't deleted it)
-    if (submittedId && quiz.submissions.some(s => s.id === submittedId)) {
+    if (submittedCookie?.value) {
       return NextResponse.json({ error: 'You have already submitted' }, { status: 403 })
     }
 
