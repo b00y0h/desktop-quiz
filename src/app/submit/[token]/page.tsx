@@ -103,6 +103,16 @@ export default function SubmitPage() {
       return
     }
 
+    if (name.trim().length > 50) {
+      setUploadError('Name must be 50 characters or fewer')
+      return
+    }
+
+    if (!/^[a-zA-Z0-9 '.\-]+$/.test(name.trim())) {
+      setUploadError('Name can only contain letters, numbers, spaces, hyphens, apostrophes, and periods')
+      return
+    }
+
     if (!file) {
       setUploadError('Photo is required')
       return
@@ -205,6 +215,7 @@ export default function SubmitPage() {
               onChange={handleNameChange}
               onBlur={handleNameBlur}
               required
+              maxLength={50}
               className="w-full px-4 py-3 bg-surface rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="Enter your name"
             />

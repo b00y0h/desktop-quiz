@@ -52,6 +52,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
       return NextResponse.json({ error: 'Name is required' }, { status: 400 })
     }
 
+    if (name.trim().length > 50) {
+      return NextResponse.json({ error: 'Name must be 50 characters or fewer' }, { status: 400 })
+    }
+
+    if (!/^[a-zA-Z0-9 '.\\-]+$/.test(name.trim())) {
+      return NextResponse.json({ error: 'Name can only contain letters, numbers, spaces, hyphens, apostrophes, and periods' }, { status: 400 })
+    }
+
     if (!file) {
       return NextResponse.json({ error: 'Image file is required' }, { status: 400 })
     }
