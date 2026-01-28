@@ -40,14 +40,14 @@
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| AUTH-01 | TBD | Pending |
-| AUTH-02 | TBD | Pending |
-| AUTH-03 | TBD | Pending |
-| LIST-01 | TBD | Pending |
-| LIST-02 | TBD | Pending |
-| LIST-03 | TBD | Pending |
-| LIST-04 | TBD | Pending |
-| MGMT-01 | TBD | Pending |
-| MGMT-02 | TBD | Pending |
-| MGMT-03 | TBD | Pending |
-| MGMT-04 | TBD | Pending |
+| AUTH-01 | Phase 8 | Pending |
+| AUTH-02 | Phase 8 | Pending |
+| AUTH-03 | Phase 8 | Pending |
+| LIST-01 | Phase 8 | Pending |
+| LIST-02 | Phase 8 | Pending |
+| LIST-03 | Phase 8 | Pending |
+| LIST-04 | Phase 8 | Pending |
+| MGMT-01 | Phase 8 | Pending |
+| MGMT-02 | Phase 8 | Pending |
+| MGMT-03 | Phase 8 | Pending |
+| MGMT-04 | Phase 8 | Pending |
