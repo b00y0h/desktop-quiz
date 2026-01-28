@@ -12,7 +12,9 @@
     "@tailwindcss/postcss": "^4.1.18",
     "@types/canvas-confetti": "^1.6.4",
     "@vercel/blob": "^2.0.1",
+    "@vercel/postgres": "^0.10.0",
     "canvas-confetti": "^1.9.3",
+    "drizzle-orm": "^0.45.1",
     "next": "14",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
@@ -24,6 +26,7 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.1.6",
     "autoprefixer": "^10.4.21",
+    "drizzle-kit": "^0.31.8",
     "postcss": "^8.5.6"
   }
 }
