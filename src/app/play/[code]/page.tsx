@@ -2,8 +2,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 
-interface Question { id: string; imageUrl: string; order: number }
-interface QuizInfo { id: string; title: string; status: string; questions: Question[]; names: string[] }
+interface Question { id: string; imageUrl: string; order: number; options: string[] }
+interface QuizInfo { id: string; title: string; status: string; questions: Question[] }
 
 type Phase = 'name' | 'playing' | 'submitting' | 'results'
 
@@ -158,26 +158,22 @@ export default function PlayQuiz() {
             <img src={q.imageUrl} alt={`Desktop ${currentQ + 1}`} className="w-full h-auto max-h-[50vh] object-contain" />
           </div>
 
-          {/* Name options — only show available names (not already used on other questions) */}
+          {/* Name options */}
           <p className="text-surface-400 text-sm mb-3">Whose desktop is this?</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
-            {quiz.names.map(n => {
-              const usedOnOther = Object.entries(guesses).some(
-                ([qId, guess]) => qId !== q.id && guess === n
-              )
-              const isSelected = guesses[q.id] === n
-              if (usedOnOther && !isSelected) return null
+            {q.options.map(name => {
+              const isSelected = guesses[q.id] === name
               return (
                 <button
-                  key={n}
-                  onClick={() => selectAnswer(q.id, n)}
+                  key={name}
+                  onClick={() => selectAnswer(q.id, name)}
                   className={`px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
                     isSelected
                       ? 'bg-primary-600 border-primary-500 text-white scale-[1.02]'
                       : 'bg-surface-900 border-surface-700 hover:border-primary-500 hover:bg-surface-800'
                   }`}
                 >
-                  {n}
+                  {name}
                 </button>
               )
             })}
