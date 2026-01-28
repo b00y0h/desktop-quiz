@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "db:push": "npx drizzle-kit push",
-    "db:studio": "npx drizzle-kit studio"
+    "db:studio": "npx drizzle-kit studio",
+    "migrate:blob-to-postgres": "npx tsx scripts/migrate-blob-to-postgres.ts"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.18",
@@ -29,6 +30,7 @@
     "@types/react-dom": "^19.1.6",
     "autoprefixer": "^10.4.21",
     "drizzle-kit": "^0.31.8",
-    "postcss": "^8.5.6"
+    "postcss": "^8.5.6",
+    "tsx": "^4.19.0"
   }
 }
