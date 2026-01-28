@@ -40,6 +40,31 @@ export default function SuperAdminDashboard() {
     }
   }
 
+  async function deleteQuiz(id: string, title: string) {
+    // Confirmation dialog (MGMT-03)
+    const confirmed = confirm(
+      `Delete quiz "${title}"?\n\nThis will permanently remove the quiz, all submissions, questions, participant data, and associated images. This cannot be undone.`
+    )
+    if (!confirmed) return
+
+    try {
+      const res = await fetch(`/api/super-admin/quizzes/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        setError(data.error || 'Failed to delete quiz')
+        return
+      }
+
+      // Remove from local state
+      setQuizzes(prev => prev.filter(q => q.id !== id))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete quiz')
+    }
+  }
+
   const statusColors: Record<string, string> = {
     draft: 'bg-yellow-500/20 text-yellow-400',
     collecting: 'bg-blue-500/20 text-blue-400',
@@ -93,7 +118,7 @@ export default function SuperAdminDashboard() {
                 <th className="px-4 py-3 font-medium text-right">Submissions</th>
                 <th className="px-4 py-3 font-medium text-right">Participants</th>
                 <th className="px-4 py-3 font-medium">Created</th>
-                <th className="px-4 py-3 font-medium"></th>
+                <th className="px-4 py-3 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -120,12 +145,20 @@ export default function SuperAdminDashboard() {
                     {new Date(quiz.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/admin/${quiz.id}`}
-                      className="text-primary-400 hover:text-primary-300 text-sm transition"
-                    >
-                      View
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/admin/${quiz.id}`}
+                        className="text-primary-400 hover:text-primary-300 text-sm transition"
+                      >
+                        View
+                      </Link>
+                      <button
+                        onClick={() => deleteQuiz(quiz.id, quiz.title)}
+                        className="text-red-400 hover:text-red-300 text-sm transition"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
