@@ -305,4 +305,28 @@ export const store = {
     await saveQuiz(quiz)
     return quiz
   },
+
+  async deleteQuiz(quizId: string, adminPin: string): Promise<boolean> {
+    const quiz = await loadQuiz(quizId)
+    if (!quiz) return false
+    if (quiz.adminPin !== adminPin) return false
+
+    // Collect all image URLs to delete
+    const imageUrls: string[] = [
+      ...quiz.questions.map(q => q.imageUrl),
+      ...quiz.submissions.map(s => s.imageUrl),
+    ]
+
+    // Delete quiz JSON blob
+    try {
+      await del(`${QUIZ_PREFIX}${quiz.id}.json`)
+    } catch { /* blob may already be gone */ }
+
+    // Delete all associated images
+    for (const url of imageUrls) {
+      try { await del(url) } catch { /* blob may already be gone */ }
+    }
+
+    return true
+  },
 }

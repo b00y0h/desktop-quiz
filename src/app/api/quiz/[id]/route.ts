@@ -73,3 +73,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
 }
+
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params
+    const { pin } = await req.json()
+    const deleted = await store.deleteQuiz(id, pin)
+    if (!deleted) return NextResponse.json({ error: 'Not found or invalid PIN' }, { status: 400 })
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error('Delete quiz error:', err)
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
+}

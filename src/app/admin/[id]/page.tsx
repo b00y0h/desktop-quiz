@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { validateImageFile, IMAGE_ACCEPT } from '@/lib/image-validation'
 
@@ -10,6 +10,7 @@ interface QuizData { id: string; title: string; code: string; status: string; qu
 
 export default function AdminQuiz() {
   const params = useParams()
+  const router = useRouter()
   const id = params.id as string
   const [quiz, setQuiz] = useState<QuizData | null>(null)
   const [pin, setPin] = useState('')
@@ -272,6 +273,25 @@ export default function AdminQuiz() {
     setTimeout(() => setSubmissionCopied(false), 2000)
   }
 
+  async function deleteQuiz() {
+    if (!confirm('Delete this quiz and all its questions, submissions, and images? This cannot be undone.')) return
+    try {
+      const res = await fetch(`/api/quiz/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin }),
+      })
+      if (!res.ok) {
+        setError('Failed to delete quiz')
+        return
+      }
+      sessionStorage.removeItem(`quiz-pin-${id}`)
+      router.push('/')
+    } catch (err) {
+      setError(`Delete failed: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
   if (!authenticated) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6">
@@ -325,6 +345,9 @@ export default function AdminQuiz() {
           <Link href={`/admin/${id}/results`} className="px-4 py-2 bg-surface-800 hover:bg-surface-700 border border-surface-700 rounded-lg text-sm transition">
             Results
           </Link>
+          <button onClick={deleteQuiz} className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-semibold transition">
+            Delete Quiz
+          </button>
         </div>
       </div>
 
