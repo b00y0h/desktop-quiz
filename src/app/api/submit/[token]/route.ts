@@ -19,11 +19,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
       return NextResponse.json({ error: 'Submission period ended' }, { status: 410 })
     }
 
+    const alreadySubmitted = !!req.cookies.get(`submitted-${quiz.id}`)
+
     return NextResponse.json({
       quizId: quiz.id,
       quizTitle: quiz.title,
       submissionCount: quiz.submissions.length,
       names: quiz.submissions.map(s => s.name),
+      alreadySubmitted,
     })
   } catch (err) {
     console.error('Get submission token error:', err)
@@ -42,6 +45,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
 
     if (quiz.status !== 'collecting') {
       return NextResponse.json({ error: 'Submission period ended' }, { status: 410 })
+    }
+
+    const submittedCookie = req.cookies.get(`submitted-${quiz.id}`)
+    if (submittedCookie) {
+      return NextResponse.json({ error: 'You have already submitted' }, { status: 403 })
     }
 
     const formData = await req.formData()
@@ -85,13 +93,23 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
       return NextResponse.json({ error: 'Failed to save submission' }, { status: 500 })
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       submission: {
         id: submission.id,
         name: submission.name,
       },
     })
+
+    response.cookies.set(`submitted-${quiz.id}`, '1', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 365, // 1 year
+      path: '/',
+    })
+
+    return response
   } catch (err) {
     console.error('Submit error:', err)
     return NextResponse.json({ error: String(err) }, { status: 500 })

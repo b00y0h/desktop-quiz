@@ -9,6 +9,7 @@ interface TokenInfo {
   quizTitle: string
   submissionCount: number
   names: string[]
+  alreadySubmitted: boolean
 }
 
 interface SubmissionResult {
@@ -135,6 +136,8 @@ export default function SubmitPage() {
         setSubmittedName(data.submission.name)
         setSubmittedImageUrl(previewUrl || '')
         setSubmitted(true)
+      } else if (res.status === 403) {
+        setUploadError('You have already submitted')
       } else if (res.status === 409) {
         setUploadError('Name already taken')
         setDuplicateWarning(true)
@@ -163,6 +166,17 @@ export default function SubmitPage() {
         <div className="bg-surface-dark rounded-xl p-8 max-w-md w-full text-center">
           <h1 className="text-2xl font-bold text-white mb-4">{error}</h1>
           <p className="text-gray-400">Please check your submission link and try again.</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (tokenInfo?.alreadySubmitted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center p-4">
+        <div className="bg-surface-dark rounded-xl p-8 max-w-md w-full text-center">
+          <h1 className="text-2xl font-bold text-white mb-4">Already Submitted</h1>
+          <p className="text-gray-400">You have already submitted a photo for this quiz.</p>
         </div>
       </div>
     )
