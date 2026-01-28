@@ -53,7 +53,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
 
     const submittedCookie = req.cookies.get(`submitted-${quiz.id}`)
     if (submittedCookie?.value) {
-      return NextResponse.json({ error: 'You have already submitted' }, { status: 403 })
+      // Allow resubmission if admin deleted the original submission
+      const stillExists = quiz.submissions.some(s => s.id === submittedCookie.value)
+      if (stillExists) {
+        return NextResponse.json({ error: 'You have already submitted' }, { status: 403 })
+      }
     }
 
     const formData = await req.formData()
