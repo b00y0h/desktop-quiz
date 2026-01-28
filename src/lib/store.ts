@@ -236,7 +236,9 @@ export const store = {
     const quiz = await loadQuiz(quizId)
     if (!quiz) return null
     if (quiz.adminPin !== adminPin) return null
-    const token = genId()
+    // Token format: {quizId}:{randomPart} - allows direct lookup without list() call
+    const randomPart = genId()
+    const token = `${quizId}:${randomPart}`
     quiz.submissionToken = token
     quiz.status = 'collecting'
     if (!quiz.submissions) quiz.submissions = []
@@ -245,6 +247,18 @@ export const store = {
   },
 
   async getQuizBySubmissionToken(token: string): Promise<Quiz | null> {
+    // Token format: {quizId}:{randomPart}
+    // Direct lookup by quiz ID avoids stale list() results from CDN
+    const colonIndex = token.indexOf(':')
+    if (colonIndex > 0) {
+      const quizId = token.substring(0, colonIndex)
+      const quiz = await loadQuiz(quizId)
+      if (quiz && quiz.submissionToken === token) {
+        return quiz
+      }
+      return null
+    }
+    // Fallback for legacy tokens without quiz ID prefix
     const all = await loadAllQuizzes()
     return all.find(q => q.submissionToken === token) || null
   },
