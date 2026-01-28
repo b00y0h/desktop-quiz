@@ -8,7 +8,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (!name || !guesses) return NextResponse.json({ error: 'Name and guesses required' }, { status: 400 })
     const quiz = await store.getQuiz(id)
     if (!quiz) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    if (quiz.status !== 'active') return NextResponse.json({ error: 'Quiz not active' }, { status: 400 })
+    if (quiz.status !== 'active') return NextResponse.json({ error: 'Quiz is not accepting answers' }, { status: 403 })
     const participant = await store.submitAnswers(id, name, guesses, timeTaken || 0)
     if (!participant) return NextResponse.json({ error: 'Failed to submit answers' }, { status: 500 })
     return NextResponse.json({ participantId: participant.id, score: participant.score, total: participant.total })
