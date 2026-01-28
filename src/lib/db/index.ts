@@ -1,9 +1,10 @@
 import { drizzle } from 'drizzle-orm/vercel-postgres'
 import { sql } from '@vercel/postgres'
+import * as schema from './schema'
 
-// Export the database instance
-// Uses POSTGRES_URL from environment automatically via @vercel/postgres
-export const db = drizzle(sql)
+// Export the database instance with schema for relational queries
+export const db = drizzle(sql, { schema })
 
-// Re-export for convenience
+// Re-export schema and sql for convenience
+export * from './schema'
 export { sql }
