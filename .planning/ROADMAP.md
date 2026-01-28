@@ -16,7 +16,14 @@
 
 **Dependencies:** None (new feature, uses existing store.deleteQuiz)
 
-**Status:** Not started
+**Plans:** 3 plans in 2 waves
+
+**Status:** Planned
+
+Plans:
+- [ ] 08-01-PLAN.md — Super admin authentication (AUTH-01, AUTH-02, AUTH-03)
+- [ ] 08-02-PLAN.md — Dashboard UI with quiz listing (LIST-01 to LIST-04, MGMT-01)
+- [ ] 08-03-PLAN.md — Quiz deletion with confirmation (MGMT-02, MGMT-03, MGMT-04)
 
 **Success criteria:**
 1. Super admin can access dashboard by entering correct master PIN from env var
@@ -33,7 +40,7 @@
 
 | Phase | Goal | Requirements | Status |
 |-------|------|--------------|--------|
-| 8 | Super Admin Dashboard | 11 | Not started |
+| 8 | Super Admin Dashboard | 11 | Planned (3 plans) |
 
 **Total:** 1 phase, 11 requirements
 
