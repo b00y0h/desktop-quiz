@@ -34,14 +34,14 @@ All 14 requirements complete — see [milestone archive](milestones/v1.1-ROADMAP
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| DB-01 | — | Pending |
-| DB-02 | — | Pending |
-| DB-03 | — | Pending |
-| STORE-01 | — | Pending |
-| STORE-02 | — | Pending |
-| STORE-03 | — | Pending |
-| MIG-01 | — | Pending |
-| MIG-02 | — | Pending |
-| MIG-03 | — | Pending |
-| VER-01 | — | Pending |
-| VER-02 | — | Pending |
+| DB-01 | 5 | Pending |
+| DB-02 | 5 | Pending |
+| DB-03 | 5 | Pending |
+| STORE-01 | 6 | Pending |
+| STORE-02 | 6 | Pending |
+| STORE-03 | 6 | Pending |
+| MIG-01 | 7 | Pending |
+| MIG-02 | 7 | Pending |
+| MIG-03 | 7 | Pending |
+| VER-01 | 7 | Pending |
+| VER-02 | 7 | Pending |
