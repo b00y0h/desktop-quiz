@@ -11,7 +11,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     if (!quiz) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     const pin = req.nextUrl.searchParams.get('pin')
     const isAdmin = pin === quiz.adminPin
-    return NextResponse.json({
+    const response = NextResponse.json({
       id: quiz.id,
       title: quiz.title,
       description: quiz.description,
@@ -28,6 +28,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       submissionCount: isAdmin ? quiz.submissions.length : undefined,
       submissions: isAdmin ? quiz.submissions : undefined,
     })
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
+    return response
   } catch (err) {
     console.error('Get quiz error:', err)
     return NextResponse.json({ error: String(err) }, { status: 500 })

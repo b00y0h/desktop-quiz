@@ -75,6 +75,7 @@ async function saveQuiz(quiz: Quiz): Promise<void> {
     contentType: 'application/json',
     addRandomSuffix: false,
     allowOverwrite: true,
+    cacheControlMaxAge: 0,
   })
 }
 
@@ -85,7 +86,10 @@ async function loadQuiz(id: string): Promise<Quiz | null> {
     // Add cache buster to avoid stale reads
     const url = new URL(blobs[0].url)
     url.searchParams.set('_t', Date.now().toString())
-    const res = await fetch(url.toString(), { cache: 'no-store' })
+    const res = await fetch(url.toString(), {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' },
+    })
     if (!res.ok) return null
     return await res.json() as Quiz
   } catch {
@@ -101,7 +105,10 @@ async function loadAllQuizzes(): Promise<Quiz[]> {
       try {
         const url = new URL(blob.url)
         url.searchParams.set('_t', Date.now().toString())
-        const res = await fetch(url.toString(), { cache: 'no-store' })
+        const res = await fetch(url.toString(), {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' },
+        })
         if (res.ok) quizzes.push(await res.json() as Quiz)
       } catch { /* skip broken entries */ }
     }
