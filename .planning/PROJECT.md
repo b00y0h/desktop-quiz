@@ -25,6 +25,16 @@ The app supports the full quiz lifecycle with Postgres-backed data storage:
 - Vercel Blob (images only)
 - ~1,590 LOC TypeScript for database layer
 
+## Current Milestone: v1.3 — Super Admin Dashboard
+
+**Goal:** Add a super admin dashboard to view all quizzes system-wide, with ability to delete quizzes (cascading to images in Vercel Blob).
+
+**Target features:**
+- Master PIN authentication for super admin access
+- Dashboard listing all quizzes with basic stats (submission count, participant count)
+- Delete any quiz with cascade to Blob images
+- View quiz details from dashboard
+
 ## Requirements
 
 ### Validated
@@ -47,7 +57,7 @@ The app supports the full quiz lifecycle with Postgres-backed data storage:
 
 ### Active
 
-(None — awaiting next milestone planning)
+(See `.planning/REQUIREMENTS.md` for v1.3 requirements)
 
 ### Out of Scope
 
@@ -81,4 +91,4 @@ See `.planning/codebase/ARCHITECTURE.md` for details.
 | Preserve store interface | Zero API changes needed | ✓ Good |
 
 ---
-*Last updated: 2026-01-28 — Milestone v1.2 complete*
+*Last updated: 2026-01-28 — Milestone v1.3 started*
