@@ -32,20 +32,20 @@
 3. ~~Submission preview updates when admin refreshes the page~~
 4. ~~Preview is accessible before submissions are closed~~
 
-### Phase 3: State Management and Closing
+### Phase 3: State Management and Closing ✅
 **Goal:** Enforce quiz state transitions from collecting → closed → playable
 **Requirements:** STATE-01, STATE-02, STATE-03, STATE-04
 **Plans:**
-1. Implement quiz state machine (collecting/closed/playable) in data model
-2. Add "Close Submissions" button to admin dashboard with state validation
-3. Add guards to prevent submissions after closing and playing before closing
+1. ~~Implement quiz state machine (collecting/closed/playable) in data model~~
+2. ~~Add "Close Submissions" button to admin dashboard with state validation~~
+3. ~~Add guards to prevent submissions after closing and playing before closing~~
 
 **Success Criteria:**
-1. New quizzes start in "collecting submissions" state automatically
-2. Admin can close submissions via button, transitioning quiz to "closed" state
-3. Worker visiting submission link after closing sees "submissions closed" message
-4. Player attempting to play quiz before closing sees "quiz not ready" message
-5. Once closed, quiz becomes playable for participants
+1. ~~New quizzes start in "collecting submissions" state automatically~~
+2. ~~Admin can close submissions via button, transitioning quiz to "closed" state~~
+3. ~~Worker visiting submission link after closing sees "submissions closed" message~~
+4. ~~Player attempting to play quiz before closing sees "quiz not ready" message~~
+5. ~~Once closed, quiz becomes playable for participants~~
 
 ### Phase 4: Auto-Generation of Quiz Questions
 **Goal:** Automatically generate quiz questions from submissions when admin closes

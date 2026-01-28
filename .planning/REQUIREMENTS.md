@@ -14,10 +14,10 @@
 - [x] **WORK-03**: Duplicate names are prevented (worker warned if name already taken)
 
 ### State Management
-- [ ] **STATE-01**: Quiz enforces states: collecting submissions → closed → playable
-- [ ] **STATE-02**: Admin can close submissions via a button on the admin dashboard
-- [ ] **STATE-03**: Workers cannot submit after submissions are closed
-- [ ] **STATE-04**: Players cannot play the quiz until submissions are closed
+- [x] **STATE-01**: Quiz enforces states: collecting submissions → closed → playable
+- [x] **STATE-02**: Admin can close submissions via a button on the admin dashboard
+- [x] **STATE-03**: Workers cannot submit after submissions are closed
+- [x] **STATE-04**: Players cannot play the quiz until submissions are closed
 
 ### Auto-Generation
 - [ ] **GEN-01**: Questions auto-generate from submissions when admin closes
@@ -46,10 +46,10 @@
 | WORK-01 | 1 | Complete |
 | WORK-02 | 1 | Complete |
 | WORK-03 | 1 | Complete |
-| STATE-01 | 3 | Pending |
-| STATE-02 | 3 | Pending |
-| STATE-03 | 3 | Pending |
-| STATE-04 | 3 | Pending |
+| STATE-01 | 3 | Complete |
+| STATE-02 | 3 | Complete |
+| STATE-03 | 3 | Complete |
+| STATE-04 | 3 | Complete |
 | GEN-01 | 4 | Pending |
 | GEN-02 | 4 | Pending |
 | GEN-03 | 4 | Pending |
