@@ -598,6 +598,31 @@ export const store = {
     return true
   },
 
+  async deleteQuizAsSuperAdmin(quizId: string): Promise<boolean> {
+    const quiz = await loadQuizWithRelations(quizId)
+    if (!quiz) return false
+
+    // Collect all image URLs to delete from Blob (STORE-03)
+    const imageUrls: string[] = [
+      ...quiz.questions.map(q => q.imageUrl),
+      ...quiz.submissions.map(s => s.imageUrl),
+    ]
+
+    // Delete quiz from database (cascade deletes all related records)
+    await db.delete(quizzes).where(eq(quizzes.id, quizId))
+
+    // Delete all associated images from Vercel Blob
+    for (const url of imageUrls) {
+      try {
+        await del(url)
+      } catch {
+        /* blob may already be gone */
+      }
+    }
+
+    return true
+  },
+
   async getAllQuizzesWithStats(): Promise<{
     id: string
     title: string
