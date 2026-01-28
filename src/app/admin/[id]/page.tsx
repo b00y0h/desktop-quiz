@@ -181,6 +181,24 @@ export default function AdminQuiz() {
     }
   }
 
+  async function changeStatus(newStatus: string) {
+    try {
+      const res = await fetch(`/api/quiz/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus, pin }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        setError(data.error || 'Status change failed')
+        return
+      }
+      setQuiz(prev => prev ? { ...prev, status: newStatus } : prev)
+    } catch (err) {
+      setError(`Status change failed: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
   async function toggleStatus() {
     try {
       let newStatus: string
@@ -389,12 +407,20 @@ export default function AdminQuiz() {
             </button>
           )}
           {quiz.status === 'closed' && (
-            <button
-              onClick={toggleStatus}
-              className="px-5 py-2 rounded-lg font-semibold transition bg-green-600 hover:bg-green-500"
-            >
-              Publish Quiz
-            </button>
+            <>
+              <button
+                onClick={() => changeStatus('collecting')}
+                className="px-5 py-2 rounded-lg font-semibold transition bg-yellow-600 hover:bg-yellow-500"
+              >
+                Reopen Submissions
+              </button>
+              <button
+                onClick={toggleStatus}
+                className="px-5 py-2 rounded-lg font-semibold transition bg-green-600 hover:bg-green-500"
+              >
+                Publish Quiz
+              </button>
+            </>
           )}
           {quiz.status === 'active' && (
             <button

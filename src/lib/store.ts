@@ -65,7 +65,7 @@ const QUIZ_PREFIX = 'quiz-data/'
 const VALID_TRANSITIONS: Record<Quiz['status'], Quiz['status'][]> = {
   draft: ['collecting'],
   collecting: ['closed'],
-  closed: ['active'],
+  closed: ['active', 'collecting'],
   active: ['closed'],
 }
 
@@ -291,10 +291,12 @@ export const store = {
     // where status hasn't propagated from generateSubmissionToken yet
     if (quiz.status !== 'collecting' && quiz.status !== 'draft') return null
 
-    // Generate questions from submissions
-    if (quiz.submissions.length > 0) {
+    // Generate questions from submissions (skip those already converted)
+    const existingImageUrls = new Set(quiz.questions.map(q => q.imageUrl))
+    const newSubmissions = quiz.submissions.filter(s => !existingImageUrls.has(s.imageUrl))
+    if (newSubmissions.length > 0) {
       const startOrder = quiz.questions.length
-      const generatedQuestions: Question[] = quiz.submissions.map((submission, index) => ({
+      const generatedQuestions: Question[] = newSubmissions.map((submission, index) => ({
         id: genId(),
         imageUrl: submission.imageUrl,
         answer: submission.name,
