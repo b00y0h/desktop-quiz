@@ -597,4 +597,47 @@ export const store = {
 
     return true
   },
+
+  async getAllQuizzesWithStats(): Promise<{
+    id: string
+    title: string
+    code: string
+    status: Quiz['status']
+    createdAt: string
+    submissionCount: number
+    participantCount: number
+  }[]> {
+    // Fetch all quizzes with counts using subqueries for efficiency
+    const allQuizzes = await db.query.quizzes.findMany({
+      orderBy: (q, { desc }) => [desc(q.createdAt)],
+    })
+
+    // Get counts for each quiz
+    const results = await Promise.all(
+      allQuizzes.map(async (quiz) => {
+        const [submissionList, participantList] = await Promise.all([
+          db.query.submissions.findMany({
+            where: eq(submissions.quizId, quiz.id),
+            columns: { id: true },
+          }),
+          db.query.participants.findMany({
+            where: eq(participants.quizId, quiz.id),
+            columns: { id: true },
+          }),
+        ])
+
+        return {
+          id: quiz.id,
+          title: quiz.title,
+          code: quiz.code,
+          status: quiz.status,
+          createdAt: quiz.createdAt.toISOString(),
+          submissionCount: submissionList.length,
+          participantCount: participantList.length,
+        }
+      })
+    )
+
+    return results
+  },
 }
