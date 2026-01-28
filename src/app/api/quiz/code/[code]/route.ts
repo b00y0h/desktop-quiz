@@ -27,8 +27,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ code
       description: quiz.description,
       status: quiz.status,
       questionCount: quiz.questions.length,
-      questions: quiz.questions.map(q => ({ id: q.id, imageUrl: q.imageUrl, order: q.order })),
-      names: [...quiz.questions.map(q => q.answer)].sort(() => Math.random() - 0.5),
+      questions: quiz.questions.map(q => {
+        const otherNames = quiz.questions
+          .map(oq => oq.answer)
+          .filter(name => name !== q.answer)
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 4)
+        const options = [q.answer, ...otherNames].sort(() => Math.random() - 0.5)
+        return { id: q.id, imageUrl: q.imageUrl, order: q.order, options }
+      }),
     })
   } catch (err) {
     console.error('Get quiz by code error:', err)
