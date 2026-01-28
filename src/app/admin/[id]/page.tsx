@@ -166,16 +166,48 @@ export default function AdminQuiz() {
 
   async function toggleStatus() {
     try {
-      const newStatus = quiz?.status === 'active' ? 'closed' : 'active'
-      await fetch(`/api/quiz/${id}`, {
+      let newStatus: string
+      if (quiz?.status === 'closed') {
+        newStatus = 'active'
+      } else if (quiz?.status === 'active') {
+        newStatus = 'closed'
+      } else {
+        setError('Invalid status transition')
+        return
+      }
+      const res = await fetch(`/api/quiz/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus, pin }),
       })
+      if (!res.ok) {
+        const data = await res.json()
+        setError(data.error || 'Status change failed')
+        return
+      }
       const updated = await loadQuiz(pin)
       if (updated) setQuiz(updated)
     } catch (err) {
       setError(`Status change failed: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
+  async function closeSubmissions() {
+    try {
+      const res = await fetch(`/api/quiz/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'closeSubmissions', pin }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        setError(data.error || 'Failed to close submissions')
+        return
+      }
+      const updated = await loadQuiz(pin)
+      if (updated) setQuiz(updated)
+    } catch (err) {
+      setError(`Failed to close submissions: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
 
@@ -274,24 +306,37 @@ export default function AdminQuiz() {
             <p className="font-medium">
               {quiz.status === 'draft' && 'Draft - Add questions then publish'}
               {quiz.status === 'collecting' && 'Collecting Submissions - Share the link below'}
+              {quiz.status === 'closed' && 'Submissions Closed - Ready to publish'}
               {quiz.status === 'active' && 'Live - Participants can join'}
-              {quiz.status === 'closed' && 'Closed - No more submissions'}
             </p>
             <p className="text-surface-400 text-sm mt-1">
               Share link: {typeof window !== 'undefined' ? window.location.origin : ''}/play/{quiz.code}
             </p>
           </div>
-          <button
-            onClick={toggleStatus}
-            disabled={quiz.status === 'draft' && quiz.questions.length === 0}
-            className={`px-5 py-2 rounded-lg font-semibold transition ${
-              quiz.status === 'active'
-                ? 'bg-red-600 hover:bg-red-500'
-                : 'bg-green-600 hover:bg-green-500'
-            } disabled:opacity-30`}
-          >
-            {quiz.status === 'active' ? 'Close Quiz' : 'Publish Quiz'}
-          </button>
+          {quiz.status === 'collecting' && (
+            <button
+              onClick={closeSubmissions}
+              className="px-5 py-2 rounded-lg font-semibold transition bg-orange-600 hover:bg-orange-500"
+            >
+              Close Submissions
+            </button>
+          )}
+          {quiz.status === 'closed' && (
+            <button
+              onClick={toggleStatus}
+              className="px-5 py-2 rounded-lg font-semibold transition bg-green-600 hover:bg-green-500"
+            >
+              Publish Quiz
+            </button>
+          )}
+          {quiz.status === 'active' && (
+            <button
+              onClick={toggleStatus}
+              className="px-5 py-2 rounded-lg font-semibold transition bg-red-600 hover:bg-red-500"
+            >
+              Close Quiz
+            </button>
+          )}
         </div>
       </div>
 
