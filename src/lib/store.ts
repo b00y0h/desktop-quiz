@@ -268,6 +268,19 @@ export const store = {
     if (!quiz) return null
     if (quiz.adminPin !== adminPin) return null
     if (quiz.status !== 'collecting') return null
+
+    // Generate questions from submissions
+    if (quiz.submissions.length > 0) {
+      const startOrder = quiz.questions.length
+      const generatedQuestions: Question[] = quiz.submissions.map((submission, index) => ({
+        id: genId(),
+        imageUrl: submission.imageUrl,
+        answer: submission.name,
+        order: startOrder + index,
+      }))
+      quiz.questions.push(...generatedQuestions)
+    }
+
     quiz.status = 'closed'
     await saveQuiz(quiz)
     return quiz
