@@ -19,18 +19,18 @@
 3. Worker attempting duplicate name sees warning and cannot submit
 4. Admin can see submission count update after worker submits
 
-### Phase 2: Submission Preview and Monitoring
+### Phase 2: Submission Preview and Monitoring ✅
 **Goal:** Give admin visibility into incoming submissions before closing
 **Requirements:** SUB-03, SUB-04
 **Plans:**
-1. Build submission preview UI in admin dashboard showing thumbnails and names
-2. Add real-time submission counter with refresh capability
+1. ~~Build submission preview UI in admin dashboard showing thumbnails and names~~
+2. ~~Add real-time submission counter with refresh capability~~
 
 **Success Criteria:**
-1. Admin can see how many submissions have been received without opening preview
-2. Admin can preview all submissions with names and photos in a gallery view
-3. Submission preview updates when admin refreshes the page
-4. Preview is accessible before submissions are closed
+1. ~~Admin can see how many submissions have been received without opening preview~~
+2. ~~Admin can preview all submissions with names and photos in a gallery view~~
+3. ~~Submission preview updates when admin refreshes the page~~
+4. ~~Preview is accessible before submissions are closed~~
 
 ### Phase 3: State Management and Closing
 **Goal:** Enforce quiz state transitions from collecting → closed → playable

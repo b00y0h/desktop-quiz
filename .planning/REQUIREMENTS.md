@@ -5,8 +5,8 @@
 ### Submission Link
 - [x] **SUB-01**: Admin can generate a unique submission link from the admin dashboard
 - [x] **SUB-02**: Admin can copy submission link to clipboard with one click
-- [ ] **SUB-03**: Admin can see how many submissions have been received
-- [ ] **SUB-04**: Admin can preview individual submissions (name + photo) before closing
+- [x] **SUB-03**: Admin can see how many submissions have been received
+- [x] **SUB-04**: Admin can preview individual submissions (name + photo) before closing
 
 ### Worker Submission
 - [x] **WORK-01**: Worker can visit submission link, enter their name, and upload a desk photo
@@ -41,8 +41,8 @@
 |--------|-------|--------|
 | SUB-01 | 1 | Complete |
 | SUB-02 | 1 | Complete |
-| SUB-03 | 2 | Pending |
-| SUB-04 | 2 | Pending |
+| SUB-03 | 2 | Complete |
+| SUB-04 | 2 | Complete |
 | WORK-01 | 1 | Complete |
 | WORK-02 | 1 | Complete |
 | WORK-03 | 1 | Complete |
