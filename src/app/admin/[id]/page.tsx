@@ -350,6 +350,45 @@ export default function AdminQuiz() {
         </div>
       )}
 
+      {/* Submission preview gallery */}
+      {quiz.submissionToken && (
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">
+              Submissions ({quiz.submissions?.length ?? quiz.submissionCount ?? 0})
+            </h2>
+            <button
+              onClick={async () => {
+                const updated = await loadQuiz(pin)
+                if (updated) setQuiz(updated)
+              }}
+              className="px-3 py-1 bg-surface-800 hover:bg-surface-700 border border-surface-700 rounded text-sm transition"
+            >
+              Refresh
+            </button>
+          </div>
+          {(!quiz.submissions || quiz.submissions.length === 0) ? (
+            <p className="text-surface-400 text-center py-8">
+              No submissions yet. Share the submission link to start collecting.
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {quiz.submissions.map(sub => (
+                <div key={sub.id} className="bg-surface-900 rounded-xl border border-surface-700 overflow-hidden">
+                  <img
+                    src={sub.imageUrl}
+                    alt={`${sub.name}'s submission`}
+                    className="w-full h-32 object-cover"
+                    onError={e => { (e.target as HTMLImageElement).src = ''; (e.target as HTMLImageElement).alt = 'Failed to load' }}
+                  />
+                  <p className="p-3 text-sm font-medium truncate">{sub.name}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Add question */}
       <div className="mb-8 p-5 bg-surface-900 rounded-xl border border-surface-700 border-dashed">
         <h2 className="text-lg font-semibold mb-4">Add Desktop Screenshot</h2>
