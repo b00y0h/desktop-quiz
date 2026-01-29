@@ -11,6 +11,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     if (!quiz) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     const pin = req.nextUrl.searchParams.get('pin')
     const isAdmin = pin === quiz.adminPin
+    // Debug: log PIN comparison
+    console.log(`[Quiz API] id=${id}, pin provided=${!!pin}, isAdmin=${isAdmin}, submissionToken=${!!quiz.submissionToken}, submissions=${quiz.submissions.length}`)
+
     const response = NextResponse.json({
       id: quiz.id,
       title: quiz.title,
@@ -27,6 +30,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       submissionToken: isAdmin ? quiz.submissionToken : undefined,
       submissionCount: isAdmin ? quiz.submissions.length : undefined,
       submissions: isAdmin ? quiz.submissions : undefined,
+      isAdmin, // Include this so frontend knows if PIN was valid
     })
     response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
     return response

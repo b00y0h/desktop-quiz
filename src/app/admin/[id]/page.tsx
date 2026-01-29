@@ -6,7 +6,7 @@ import { validateImageFile, IMAGE_ACCEPT } from '@/lib/image-validation'
 
 interface Question { id: string; imageUrl: string; answer: string; order: number }
 interface Submission { id: string; name: string; imageUrl: string; createdAt: string }
-interface QuizData { id: string; title: string; code: string; status: string; questions: Question[]; questionCount: number; submissionToken?: string; submissionCount?: number; submissions?: Submission[] }
+interface QuizData { id: string; title: string; code: string; status: string; questions: Question[]; questionCount: number; submissionToken?: string; submissionCount?: number; submissions?: Submission[]; isAdmin?: boolean }
 
 export default function AdminQuiz() {
   const params = useParams()
@@ -28,6 +28,11 @@ export default function AdminQuiz() {
       const res = await fetch(`/api/quiz/${id}?pin=${adminPin}`)
       if (!res.ok) return null
       const data = await res.json() as QuizData
+      // Verify PIN was actually valid (API returns isAdmin: false for wrong PIN)
+      if (data.isAdmin === false) {
+        console.warn('PIN validation failed - API returned isAdmin: false')
+        return null
+      }
       // Filter out items deleted locally that the CDN hasn't caught up with
       if (deletedIds.size > 0) {
         data.questions = data.questions.filter(q => !deletedIds.has(q.id))
@@ -47,9 +52,17 @@ export default function AdminQuiz() {
   useEffect(() => {
     const savedPin = sessionStorage.getItem(`quiz-pin-${id}`)
     if (savedPin) {
-      setPin(savedPin)
-      setAuthenticated(true)
-      loadQuiz(savedPin).then(q => q && setQuiz(q))
+      loadQuiz(savedPin).then(q => {
+        if (q) {
+          setPin(savedPin)
+          setQuiz(q)
+          setAuthenticated(true)
+        } else {
+          // Saved PIN is no longer valid - clear it
+          sessionStorage.removeItem(`quiz-pin-${id}`)
+          setError('Session expired. Please re-enter your PIN.')
+        }
+      })
     }
   }, [id, loadQuiz])
 
