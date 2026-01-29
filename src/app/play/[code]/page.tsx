@@ -53,6 +53,15 @@ export default function PlayQuiz() {
       .catch(() => setError('Failed to load quiz'))
   }, [code])
 
+  // Preload all quiz images in the background during name entry
+  useEffect(() => {
+    if (!quiz) return
+    quiz.questions.forEach(q => {
+      const img = new Image()
+      img.src = q.imageUrl
+    })
+  }, [quiz])
+
   function startQuiz(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
@@ -165,9 +174,14 @@ export default function PlayQuiz() {
 
         {/* Image */}
         <div className="flex-1 flex flex-col animate-fade-in" key={q.id}>
-          <div className="relative rounded-xl overflow-hidden border border-surface-700 mb-4 bg-surface-900">
+          <a
+            href={q.imageUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative rounded-xl overflow-hidden border border-surface-700 mb-4 bg-surface-900 cursor-zoom-in hover:border-surface-600 transition-colors"
+          >
             <img src={q.imageUrl} alt={`Desktop ${currentQ + 1}`} className="w-full h-auto max-h-[50vh] object-contain" />
-          </div>
+          </a>
 
           {/* Name options */}
           <p className="text-surface-400 text-sm mb-3">Whose desktop is this?</p>
