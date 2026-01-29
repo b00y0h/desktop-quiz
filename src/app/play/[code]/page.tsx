@@ -265,10 +265,11 @@ export default function PlayQuiz() {
             href={q.imageUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="relative rounded-xl overflow-hidden border border-surface-700 mb-4 bg-surface-900 cursor-zoom-in hover:border-surface-600 transition-colors"
+            className="relative rounded-xl overflow-hidden border border-surface-700 bg-surface-900 cursor-pointer hover:border-surface-600 transition-colors"
           >
             <img src={q.imageUrl} alt={`Desktop ${currentQ + 1}`} className="w-full h-auto max-h-[50vh] object-contain" />
           </a>
+          <p className="text-surface-500 text-xs text-center mt-1 mb-3">Click image to view full size</p>
 
           {/* Name options */}
           <p className="text-surface-400 text-sm mb-3">Whose desktop is this?</p>
