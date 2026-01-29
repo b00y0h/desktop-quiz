@@ -7,6 +7,16 @@ interface QuizInfo { id: string; title: string; status: string; questions: Quest
 
 type Phase = 'name' | 'playing' | 'submitting' | 'results'
 
+// Fisher-Yates shuffle for randomizing question order per player
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
+
 export default function PlayQuiz() {
   const params = useParams()
   const code = params.code as string
@@ -36,7 +46,8 @@ export default function PlayQuiz() {
         } else if (d.error) {
           setError(d.error)
         } else {
-          setQuiz(d)
+          // Randomize question order for each player
+          setQuiz({ ...d, questions: shuffleArray(d.questions) })
         }
       })
       .catch(() => setError('Failed to load quiz'))
