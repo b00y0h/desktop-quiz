@@ -434,11 +434,13 @@ export default function AdminQuiz() {
       </div>
 
       {/* Submission link section */}
-      {quiz.status === 'draft' && (
+      {!quiz.submissionToken && (
         <div className="mb-8 p-4 bg-surface-900 rounded-xl border border-surface-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium">Start Collecting Desktop Submissions</p>
+              <p className="font-medium">
+                {quiz.status === 'draft' ? 'Start Collecting Desktop Submissions' : 'Generate Submission Link'}
+              </p>
               <p className="text-surface-400 text-sm mt-1">
                 Generate a unique link for people to submit their desktop screenshots
               </p>
@@ -447,7 +449,7 @@ export default function AdminQuiz() {
               onClick={startCollectingSubmissions}
               className="px-5 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-semibold transition"
             >
-              Start Collecting Submissions
+              {quiz.status === 'draft' ? 'Start Collecting Submissions' : 'Generate Link'}
             </button>
           </div>
         </div>
@@ -489,7 +491,7 @@ export default function AdminQuiz() {
       )}
 
       {/* Submission preview gallery */}
-      {quiz.submissionToken && (
+      {(quiz.submissionToken || (quiz.submissions && quiz.submissions.length > 0)) && (
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">
