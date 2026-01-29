@@ -382,6 +382,83 @@ export const store = {
     }
   },
 
+  async saveAnswer(
+    quizId: string,
+    name: string,
+    questionId: string,
+    guess: string
+  ): Promise<{ participantId: string; correct: boolean } | null> {
+    // Verify quiz exists and is active
+    const quiz = await loadQuizWithRelations(quizId)
+    if (!quiz || quiz.status !== 'active') return null
+
+    // Find the question to check correctness
+    const question = quiz.questions.find(q => q.id === questionId)
+    if (!question) return null
+
+    const correct = guess.toLowerCase().trim() === question.answer.toLowerCase().trim()
+
+    // Find or create participant (case-insensitive name match)
+    const allParticipants = await db.query.participants.findMany({
+      where: eq(participants.quizId, quizId),
+    })
+    let participant = allParticipants.find(
+      p => p.name.toLowerCase() === name.toLowerCase()
+    )
+
+    const now = new Date()
+    let participantId: string
+
+    if (participant) {
+      participantId = participant.id
+    } else {
+      // Create new participant with initial values
+      participantId = genId()
+      await db.insert(participants).values({
+        id: participantId,
+        quizId,
+        name,
+        score: 0,
+        total: quiz.questions.length,
+        createdAt: now,
+      })
+    }
+
+    // Check if answer already exists for this question
+    const existingAnswers = await db.query.answers.findMany({
+      where: eq(answers.participantId, participantId),
+    })
+    const existingAnswer = existingAnswers.find(a => a.questionId === questionId)
+
+    if (existingAnswer) {
+      // Update existing answer
+      await db.update(answers)
+        .set({ guess, correct })
+        .where(eq(answers.id, existingAnswer.id))
+    } else {
+      // Create new answer
+      await db.insert(answers).values({
+        id: genId(),
+        participantId,
+        questionId,
+        guess,
+        correct,
+      })
+    }
+
+    // Recalculate and update score
+    const allAnswers = await db.query.answers.findMany({
+      where: eq(answers.participantId, participantId),
+    })
+    const newScore = allAnswers.filter(a => a.correct).length
+
+    await db.update(participants)
+      .set({ score: newScore })
+      .where(eq(participants.id, participantId))
+
+    return { participantId, correct }
+  },
+
   async getLeaderboard(quizId: string): Promise<Participant[]> {
     const quiz = await db.query.quizzes.findFirst({
       where: eq(quizzes.id, quizId),

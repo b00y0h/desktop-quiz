@@ -1,11 +1,19 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 
 interface Question { id: string; imageUrl: string; order: number; options: string[] }
 interface QuizInfo { id: string; title: string; status: string; questions: Question[] }
 
 type Phase = 'name' | 'playing' | 'submitting' | 'results'
+
+interface SavedProgress {
+  name: string
+  guesses: Record<string, string>
+  questionOrder: string[] // Question IDs in order shown to this player
+  startTime: number
+  currentQ: number
+}
 
 // Fisher-Yates shuffle for randomizing question order per player
 function shuffleArray<T>(array: T[]): T[] {
@@ -15,6 +23,10 @@ function shuffleArray<T>(array: T[]): T[] {
     ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
   }
   return shuffled
+}
+
+function getProgressKey(code: string): string {
+  return `quiz-progress-${code.toUpperCase()}`
 }
 
 export default function PlayQuiz() {
@@ -46,7 +58,36 @@ export default function PlayQuiz() {
         } else if (d.error) {
           setError(d.error)
         } else {
-          // Randomize question order for each player
+          // Check for saved progress
+          const progressKey = getProgressKey(code)
+          const savedJson = localStorage.getItem(progressKey)
+
+          if (savedJson) {
+            try {
+              const saved: SavedProgress = JSON.parse(savedJson)
+              // Restore question order from saved progress
+              const questionMap = new Map(d.questions.map((q: Question) => [q.id, q]))
+              const orderedQuestions = saved.questionOrder
+                .map(id => questionMap.get(id))
+                .filter((q): q is Question => q !== undefined)
+
+              // If all questions still exist, restore progress
+              if (orderedQuestions.length === d.questions.length) {
+                setQuiz({ ...d, questions: orderedQuestions })
+                setName(saved.name)
+                setGuesses(saved.guesses)
+                setCurrentQ(saved.currentQ)
+                startTime.current = saved.startTime
+                setPhase('playing')
+                return
+              }
+            } catch {
+              // Invalid saved data, clear it
+              localStorage.removeItem(progressKey)
+            }
+          }
+
+          // No valid saved progress - randomize question order for new player
           setQuiz({ ...d, questions: shuffleArray(d.questions) })
         }
       })
@@ -62,15 +103,59 @@ export default function PlayQuiz() {
     })
   }, [quiz])
 
+  // Save progress to localStorage
+  const saveProgress = useCallback((
+    newGuesses: Record<string, string>,
+    newCurrentQ: number
+  ) => {
+    if (!quiz) return
+    const progress: SavedProgress = {
+      name: name.trim(),
+      guesses: newGuesses,
+      questionOrder: quiz.questions.map(q => q.id),
+      startTime: startTime.current,
+      currentQ: newCurrentQ,
+    }
+    localStorage.setItem(getProgressKey(code), JSON.stringify(progress))
+  }, [quiz, name, code])
+
   function startQuiz(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
     startTime.current = Date.now()
     setPhase('playing')
+    // Save initial progress
+    if (quiz) {
+      const progress: SavedProgress = {
+        name: name.trim(),
+        guesses: {},
+        questionOrder: quiz.questions.map(q => q.id),
+        startTime: startTime.current,
+        currentQ: 0,
+      }
+      localStorage.setItem(getProgressKey(code), JSON.stringify(progress))
+    }
   }
 
   function selectAnswer(questionId: string, person: string) {
-    setGuesses(prev => ({ ...prev, [questionId]: person }))
+    const newGuesses = { ...guesses, [questionId]: person }
+    setGuesses(newGuesses)
+
+    // Save to localStorage immediately
+    const nextQ = currentQ < (quiz?.questions.length || 0) - 1 ? currentQ + 1 : currentQ
+    saveProgress(newGuesses, nextQ)
+
+    // Save to database (fire and forget - don't block UI)
+    if (quiz) {
+      fetch(`/api/quiz/${quiz.id}/answer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), questionId, guess: person }),
+      }).catch(() => {
+        // Silently fail - localStorage has the backup
+      })
+    }
+
     // Auto-advance after short delay
     setTimeout(() => {
       if (currentQ < (quiz?.questions.length || 0) - 1) {
@@ -92,6 +177,8 @@ export default function PlayQuiz() {
       const data = await res.json()
       if (!res.ok) { setError(data.error); setPhase('playing'); return }
       setResult(data)
+      // Clear saved progress on successful submit
+      localStorage.removeItem(getProgressKey(code))
       // Fire confetti
       try {
         const confetti = (await import('canvas-confetti')).default
