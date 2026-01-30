@@ -68,7 +68,13 @@ export default function ResultsPage() {
               <span className="text-2xl w-10 text-center">{medals[i] || `#${i + 1}`}</span>
               <span className="flex-1 font-semibold text-lg">{p.name}</span>
               <span className="text-primary-400 font-bold text-lg">{p.score}/{p.total}</span>
-              {p.timeTaken != null && <span className="text-surface-400 text-sm">{p.timeTaken}s</span>}
+              {p.timeTaken != null ? (
+                <span className="text-surface-400 text-sm">{p.timeTaken}s</span>
+              ) : (
+                <span className="text-yellow-400 text-xs px-2 py-1 bg-yellow-400/10 rounded-full animate-pulse">
+                  taking quiz...
+                </span>
+              )}
             </div>
           ))}
         </div>
