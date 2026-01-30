@@ -4,7 +4,11 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
 interface LeaderboardEntry { id: string; name: string; score: number; total: number; timeTaken?: number }
-interface QuestionStat { questionId: string; answer: string; totalAnswers: number; correctCount: number; correctPct: number }
+interface AnswerDetail { participantId: string; participantName: string; guess: string; correct: boolean }
+interface QuestionStat {
+  questionId: string; imageUrl: string; answer: string; totalAnswers: number
+  correctCount: number; correctPct: number; answers: AnswerDetail[]
+}
 interface ResultsData {
   title: string; code: string; status: string; totalParticipants: number
   avgScore: number; totalQuestions: number; leaderboard: LeaderboardEntry[]; questionStats: QuestionStat[]
@@ -14,6 +18,7 @@ export default function ResultsPage() {
   const params = useParams()
   const id = params.id as string
   const [data, setData] = useState<ResultsData | null>(null)
+  const [expandedQ, setExpandedQ] = useState<string | null>(null)
 
   useEffect(() => {
     const load = () => fetch(`/api/quiz/${id}/results`).then(r => r.json()).then(setData)
@@ -72,19 +77,64 @@ export default function ResultsPage() {
       {/* Question breakdown */}
       <h2 className="text-xl font-bold mb-4">📈 Question Breakdown</h2>
       <div className="space-y-3">
-        {data.questionStats.map((q, i) => (
-          <div key={q.questionId} className="flex items-center gap-4 p-4 bg-surface-900 rounded-xl border border-surface-700">
-            <span className="text-surface-400 font-mono w-8">#{i + 1}</span>
-            <span className="flex-1 font-medium">{q.answer}</span>
-            <div className="w-32 bg-surface-700 rounded-full h-3 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-primary-500 to-purple-500 transition-all"
-                style={{ width: `${q.correctPct}%` }}
-              />
+        {data.questionStats.map((q, i) => {
+          const isExpanded = expandedQ === q.questionId
+          return (
+            <div key={q.questionId} className="bg-surface-900 rounded-xl border border-surface-700 overflow-hidden">
+              <button
+                onClick={() => setExpandedQ(isExpanded ? null : q.questionId)}
+                className="w-full flex items-center gap-4 p-4 hover:bg-surface-800 transition text-left"
+              >
+                <img
+                  src={q.imageUrl}
+                  alt={q.answer}
+                  className="w-16 h-12 object-cover rounded-lg border border-surface-600"
+                />
+                <span className="text-surface-400 font-mono w-8">#{i + 1}</span>
+                <span className="flex-1 font-medium">{q.answer}</span>
+                <div className="w-32 bg-surface-700 rounded-full h-3 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-primary-500 to-purple-500 transition-all"
+                    style={{ width: `${q.correctPct}%` }}
+                  />
+                </div>
+                <span className="text-sm text-surface-400 w-20 text-right">
+                  {q.totalAnswers} answer{q.totalAnswers !== 1 ? 's' : ''}
+                </span>
+                <span className="text-surface-400">{isExpanded ? '▼' : '▶'}</span>
+              </button>
+
+              {isExpanded && (
+                <div className="border-t border-surface-700 p-4 bg-surface-950">
+                  {q.answers.length === 0 ? (
+                    <p className="text-surface-500 text-sm text-center py-2">No answers yet</p>
+                  ) : (
+                    <div className="grid gap-2">
+                      {q.answers.map((a, idx) => (
+                        <div
+                          key={`${a.participantId}-${idx}`}
+                          className={`flex items-center gap-3 p-3 rounded-lg ${
+                            a.correct
+                              ? 'bg-green-500/10 border border-green-500/30'
+                              : 'bg-red-500/10 border border-red-500/30'
+                          }`}
+                        >
+                          <span className={`text-lg ${a.correct ? 'text-green-400' : 'text-red-400'}`}>
+                            {a.correct ? '✓' : '✗'}
+                          </span>
+                          <span className="font-medium flex-1">{a.participantName}</span>
+                          <span className={`text-sm ${a.correct ? 'text-green-400' : 'text-red-400'}`}>
+                            {a.guess}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            <span className="text-sm text-surface-400 w-16 text-right">{q.correctPct}% correct</span>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

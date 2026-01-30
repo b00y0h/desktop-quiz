@@ -14,14 +14,27 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       : 0
 
     const questionStats = quiz.questions.map(q => {
-      const answers = quiz.participants.flatMap(p => p.answers.filter(a => a.questionId === q.id))
-      const correctCount = answers.filter(a => a.correct).length
+      // Get all answers for this question with participant info
+      const answersWithNames = quiz.participants.flatMap(p =>
+        p.answers
+          .filter(a => a.questionId === q.id)
+          .map(a => ({
+            participantId: p.id,
+            participantName: p.name,
+            guess: a.guess,
+            correct: a.correct,
+          }))
+      )
+      const correctCount = answersWithNames.filter(a => a.correct).length
       return {
         questionId: q.id,
+        imageUrl: q.imageUrl,
         answer: q.answer,
-        totalAnswers: answers.length,
+        totalAnswers: answersWithNames.length,
         correctCount,
-        correctPct: answers.length > 0 ? Math.round((correctCount / answers.length) * 100) : 0,
+        correctPct: answersWithNames.length > 0 ? Math.round((correctCount / answersWithNames.length) * 100) : 0,
+        // Individual answers for real-time tracking
+        answers: answersWithNames,
       }
     })
 
