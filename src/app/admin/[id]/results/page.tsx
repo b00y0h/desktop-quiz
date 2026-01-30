@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
-interface LeaderboardEntry { id: string; name: string; score: number; total: number; timeTaken?: number }
+interface LeaderboardEntry { id: string; name: string; score: number; total: number; timeTaken?: number; createdAt: string }
 interface AnswerDetail { participantId: string; participantName: string; guess: string; correct: boolean }
 interface QuestionStat {
   questionId: string; imageUrl: string; answer: string; totalAnswers: number
@@ -12,6 +12,20 @@ interface QuestionStat {
 interface ResultsData {
   title: string; code: string; status: string; totalParticipants: number
   avgScore: number; totalQuestions: number; leaderboard: LeaderboardEntry[]; questionStats: QuestionStat[]
+}
+
+function formatTimeAgo(dateString: string): string {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMins / 60)
+  const diffDays = Math.floor(diffHours / 24)
+
+  if (diffMins < 1) return 'just now'
+  if (diffMins < 60) return `${diffMins}m ago`
+  if (diffHours < 24) return `${diffHours}h ${diffMins % 60}m ago`
+  return `${diffDays}d ago`
 }
 
 export default function ResultsPage() {
@@ -71,9 +85,12 @@ export default function ResultsPage() {
               {p.timeTaken != null ? (
                 <span className="text-surface-400 text-sm">{p.timeTaken}s</span>
               ) : (
-                <span className="text-yellow-400 text-xs px-2 py-1 bg-yellow-400/10 rounded-full animate-pulse">
-                  taking quiz...
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-yellow-400 text-xs px-2 py-1 bg-yellow-400/10 rounded-full animate-pulse">
+                    taking quiz...
+                  </span>
+                  <span className="text-surface-500 text-xs">started {formatTimeAgo(p.createdAt)}</span>
+                </div>
               )}
             </div>
           ))}

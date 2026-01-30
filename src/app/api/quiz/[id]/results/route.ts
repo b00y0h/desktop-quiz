@@ -51,6 +51,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         score: p.score,
         total: p.total,
         timeTaken: p.timeTaken,
+        createdAt: p.createdAt,
       })),
       questionStats,
     })
