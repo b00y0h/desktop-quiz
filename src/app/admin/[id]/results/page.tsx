@@ -88,6 +88,9 @@ export default function ResultsPage() {
                 <>
                   <span className="text-primary-400 font-bold text-lg">{p.score}/{p.total}</span>
                   <span className="text-surface-400 text-sm">{p.timeTaken}s</span>
+                  <span className="text-green-400 text-xs px-2 py-1 bg-green-400/10 rounded-full">
+                    completed
+                  </span>
                 </>
               ) : (
                 <div className="flex items-center gap-3">
