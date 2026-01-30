@@ -129,14 +129,19 @@ export default function ResultsPage() {
                 />
                 <span className="text-surface-400 font-mono w-8">#{i + 1}</span>
                 <span className="flex-1 font-medium">{q.answer}</span>
-                <div className="w-32 bg-surface-700 rounded-full h-3 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-primary-500 to-purple-500 transition-all"
-                    style={{ width: `${q.correctPct}%` }}
-                  />
+                <div className="flex items-center gap-2">
+                  <div className="w-24 bg-surface-700 rounded-full h-3 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-primary-500 to-purple-500 transition-all"
+                      style={{ width: `${q.correctPct}%` }}
+                    />
+                  </div>
+                  <span className="text-sm text-green-400 w-16">
+                    {q.correctCount}/{q.totalAnswers}
+                  </span>
                 </div>
                 <span className="text-sm text-surface-400 w-20 text-right">
-                  {q.totalAnswers} answer{q.totalAnswers !== 1 ? 's' : ''}
+                  {q.correctPct}% correct
                 </span>
                 <span className="text-surface-400">{isExpanded ? '▼' : '▶'}</span>
               </button>
