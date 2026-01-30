@@ -273,7 +273,18 @@ export const store = {
     return true
   },
 
-  async submitAnswers(quizId: string, name: string, guesses: Record<string, string>, timeTaken: number): Promise<Participant | null> {
+  async hasCompletedQuiz(quizId: string, name: string): Promise<boolean> {
+    const allParticipants = await db.query.participants.findMany({
+      where: eq(participants.quizId, quizId),
+    })
+    const existing = allParticipants.find(
+      p => p.name.toLowerCase() === name.toLowerCase()
+    )
+    // timeTaken being set means they've submitted the quiz
+    return existing?.timeTaken != null
+  },
+
+  async submitAnswers(quizId: string, name: string, guesses: Record<string, string>, timeTaken: number): Promise<Participant | null | 'already_completed'> {
     const quiz = await loadQuizWithRelations(quizId)
     if (!quiz) return null
 
@@ -284,6 +295,11 @@ export const store = {
     const existing = allParticipants.find(
       p => p.name.toLowerCase() === name.toLowerCase()
     )
+
+    // Check if they've already completed the quiz
+    if (existing?.timeTaken != null) {
+      return 'already_completed'
+    }
 
     // Calculate score
     const answerList: { id: string; questionId: string; guess: string; correct: boolean }[] = []
@@ -405,6 +421,11 @@ export const store = {
     let participant = allParticipants.find(
       p => p.name.toLowerCase() === name.toLowerCase()
     )
+
+    // Check if they've already completed the quiz
+    if (participant?.timeTaken != null) {
+      return null // Already completed, can't save more answers
+    }
 
     const now = new Date()
     let participantId: string

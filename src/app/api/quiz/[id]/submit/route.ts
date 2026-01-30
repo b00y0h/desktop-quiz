@@ -10,6 +10,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (!quiz) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     if (quiz.status !== 'active') return NextResponse.json({ error: 'Quiz is not accepting answers' }, { status: 403 })
     const participant = await store.submitAnswers(id, name, guesses, timeTaken || 0)
+    if (participant === 'already_completed') {
+      return NextResponse.json({ error: 'You have already completed this quiz' }, { status: 403 })
+    }
     if (!participant) return NextResponse.json({ error: 'Failed to submit answers' }, { status: 500 })
     return NextResponse.json({ participantId: participant.id, score: participant.score, total: participant.total })
   } catch (err) {

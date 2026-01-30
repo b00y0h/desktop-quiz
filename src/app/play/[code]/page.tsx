@@ -119,22 +119,34 @@ export default function PlayQuiz() {
     localStorage.setItem(getProgressKey(code), JSON.stringify(progress))
   }, [quiz, name, code])
 
-  function startQuiz(e: React.FormEvent) {
+  async function startQuiz(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim()) return
+    if (!name.trim() || !quiz) return
+
+    // Check if user has already completed this quiz
+    try {
+      const res = await fetch(`/api/quiz/${quiz.id}/check-completion?name=${encodeURIComponent(name.trim())}`)
+      const data = await res.json()
+      if (data.completed) {
+        setError('You have already completed this quiz!')
+        return
+      }
+    } catch {
+      // If check fails, let them try anyway - submit will catch it
+    }
+
     startTime.current = Date.now()
     setPhase('playing')
+    setError('')
     // Save initial progress
-    if (quiz) {
-      const progress: SavedProgress = {
-        name: name.trim(),
-        guesses: {},
-        questionOrder: quiz.questions.map(q => q.id),
-        startTime: startTime.current,
-        currentQ: 0,
-      }
-      localStorage.setItem(getProgressKey(code), JSON.stringify(progress))
+    const progress: SavedProgress = {
+      name: name.trim(),
+      guesses: {},
+      questionOrder: quiz.questions.map(q => q.id),
+      startTime: startTime.current,
+      currentQ: 0,
     }
+    localStorage.setItem(getProgressKey(code), JSON.stringify(progress))
   }
 
   function selectAnswer(questionId: string, person: string) {

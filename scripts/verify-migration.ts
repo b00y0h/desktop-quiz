@@ -265,7 +265,7 @@ async function testQuizPlay() {
     }
 
     const participant = await store.submitAnswers(testQuizId, 'Test Player 1', guesses, 45)
-    if (!participant) throw new Error('Failed to submit answers')
+    if (!participant || participant === 'already_completed') throw new Error('Failed to submit answers')
     if (participant.name !== 'Test Player 1') throw new Error('Participant name mismatch')
     if (participant.score !== 5) throw new Error(`Expected score 5, got ${participant.score}`)
     if (participant.total !== 5) throw new Error(`Expected total 5, got ${participant.total}`)
@@ -287,7 +287,7 @@ async function testQuizPlay() {
     })
 
     const participant = await store.submitAnswers(testQuizId, 'Test Player 2', guesses, 30)
-    if (!participant) throw new Error('Failed to submit answers')
+    if (!participant || participant === 'already_completed') throw new Error('Failed to submit answers')
     if (participant.score !== 3) throw new Error(`Expected score 3, got ${participant.score}`)
     log(`  Player 2: ${participant.score}/${participant.total} in ${participant.timeTaken}s`)
   })
@@ -355,7 +355,7 @@ async function testLeaderboard() {
     }
 
     const participant = await store.submitAnswers(testQuizId, 'Test Player 3', guesses, 30)
-    if (!participant) throw new Error('Failed to submit answers')
+    if (!participant || participant === 'already_completed') throw new Error('Failed to submit answers')
     log(`  Player 3: ${participant.score}/${participant.total} in ${participant.timeTaken}s`)
   })
 
