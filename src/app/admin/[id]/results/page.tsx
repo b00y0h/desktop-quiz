@@ -114,7 +114,7 @@ export default function ResultsPage() {
       {/* Question breakdown */}
       <h2 className="text-xl font-bold mb-4">📈 Question Breakdown</h2>
       <div className="space-y-3">
-        {data.questionStats.map((q, i) => {
+        {[...data.questionStats].sort((a, b) => b.correctCount - a.correctCount).map((q, i) => {
           const isExpanded = expandedQ === q.questionId
           return (
             <div key={q.questionId} className="bg-surface-900 rounded-xl border border-surface-700 overflow-hidden">
