@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
-interface LeaderboardEntry { id: string; name: string; score: number; total: number; timeTaken?: number; createdAt: string }
+interface LeaderboardEntry { id: string; name: string; score: number; total: number; answered: number; timeTaken?: number; createdAt: string }
 interface AnswerDetail { participantId: string; participantName: string; guess: string; correct: boolean }
 interface QuestionStat {
   questionId: string; imageUrl: string; answer: string; totalAnswers: number
@@ -74,20 +74,31 @@ export default function ResultsPage() {
         <div className="space-y-2 mb-10">
           {data.leaderboard.map((p, i) => (
             <div key={p.id} className={`flex items-center gap-4 p-4 rounded-xl border transition ${
+              p.timeTaken == null ? 'bg-yellow-500/5 border-yellow-500/20' :
               i === 0 ? 'bg-yellow-500/10 border-yellow-500/30' :
               i === 1 ? 'bg-gray-400/10 border-gray-400/20' :
               i === 2 ? 'bg-amber-600/10 border-amber-600/20' :
               'bg-surface-900 border-surface-700'
             }`}>
-              <span className="text-2xl w-10 text-center">{medals[i] || `#${i + 1}`}</span>
+              <span className="text-2xl w-10 text-center">
+                {p.timeTaken == null ? '⏳' : (medals[i] || `#${i + 1}`)}
+              </span>
               <span className="flex-1 font-semibold text-lg">{p.name}</span>
-              <span className="text-primary-400 font-bold text-lg">{p.score}/{p.total}</span>
               {p.timeTaken != null ? (
-                <span className="text-surface-400 text-sm">{p.timeTaken}s</span>
+                <>
+                  <span className="text-primary-400 font-bold text-lg">{p.score}/{p.total}</span>
+                  <span className="text-surface-400 text-sm">{p.timeTaken}s</span>
+                </>
               ) : (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
+                  <span className="text-surface-400 text-sm">
+                    Q {p.answered}/{p.total}
+                  </span>
+                  <span className="text-green-400 text-sm">
+                    {p.score} correct
+                  </span>
                   <span className="text-yellow-400 text-xs px-2 py-1 bg-yellow-400/10 rounded-full animate-pulse">
-                    taking quiz...
+                    in progress
                   </span>
                   <span className="text-surface-500 text-xs">started {formatTimeAgo(p.createdAt)}</span>
                 </div>
