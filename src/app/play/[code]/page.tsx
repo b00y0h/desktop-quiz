@@ -387,9 +387,31 @@ export default function PlayQuiz() {
             </div>
           </div>
 
+          <p className="mt-6 text-surface-500 text-sm">
+            Bookmark the leaderboard to check back later:
+          </p>
+          <div className="flex gap-3 mt-2 justify-center">
+            <button
+              onClick={() => {
+                const url = `${window.location.origin}/play/${code}/leaderboard`
+                navigator.clipboard.writeText(url)
+                alert('Leaderboard link copied!')
+              }}
+              className="px-4 py-2 bg-surface-800 hover:bg-surface-700 border border-surface-700 rounded-xl text-sm transition"
+            >
+              Copy Link
+            </button>
+            <a
+              href={`/play/${code}/leaderboard`}
+              className="px-4 py-2 bg-primary-600 hover:bg-primary-500 rounded-xl text-sm transition"
+            >
+              View Leaderboard
+            </a>
+          </div>
+
           <button
             onClick={() => window.location.href = '/'}
-            className="mt-8 px-6 py-3 bg-surface-800 hover:bg-surface-700 border border-surface-700 rounded-xl transition"
+            className="mt-6 px-6 py-3 bg-surface-800 hover:bg-surface-700 border border-surface-700 rounded-xl transition"
           >
             Back to Home
           </button>
